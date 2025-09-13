@@ -1,0 +1,6 @@
+@PTO2306_HostAddress = http://localhost:5201
+
+GET {{PTO2306_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
