@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PTO2306.Data;
+using PTO2306.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,16 +25,14 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
+    app.UseMiddleware<SwaggerAuth>();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.MapGet("/hello", () => "Hello world!");
 
 app.Run();
