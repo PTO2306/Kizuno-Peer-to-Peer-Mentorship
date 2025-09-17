@@ -5,5 +5,14 @@ namespace PTO2306.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-   public DbSet<User> Users { get; set; } 
+   public DbSet<UserModel> Users { get; set; } 
+   public DbSet<RefreshTokenModel> RefreshTokens { get; set; }
+
+   protected override void OnModelCreating(ModelBuilder builder)
+   {
+       builder.Entity<RefreshTokenModel>()
+           .HasOne(u => u.User)
+           .WithMany()
+           .HasForeignKey(u => u.UserId);
+   }
 }
