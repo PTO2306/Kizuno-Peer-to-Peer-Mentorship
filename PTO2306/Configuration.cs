@@ -3,11 +3,15 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PTO2306.Data;
+using PTO2306.Data.Models;
+using PTO2306.Endpoints;
 using PTO2306.Middleware;
+using PTO2306.Services;
 
 namespace PTO2306;
 
@@ -67,6 +71,9 @@ public static class Configuration
       });
       
       // SERVICES
+      builder.Services.AddScoped<TokenProvider>();
+      builder.Services.AddScoped<IPasswordHasher<UserModel>, PasswordHasher<UserModel>>();
+      
    }
 
    public static void RegisterSwagger(this WebApplicationBuilder builder)
@@ -121,7 +128,8 @@ public static class Configuration
       app.UseAuthorization();
       
       // Map endpoints
-      
+      app.MapUserEndpoints();
+         
       // Swagger UI
       // if (app.Environment.IsDevelopment())
       // {
