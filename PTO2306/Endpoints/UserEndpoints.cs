@@ -14,7 +14,7 @@ public static class UserEndpoints
 {
    public static void MapUserEndpoints(this IEndpointRouteBuilder app)
    {
-      var user = app.MapGroup("/user");
+      var user = app.MapGroup("pto2306/user");
 
       user.MapPost("/login", Login);
       user.MapPost("/regresh", Refresh);
