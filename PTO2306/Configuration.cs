@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -73,7 +74,7 @@ public static class Configuration
       // SERVICES
       builder.Services.AddScoped<TokenProvider>();
       builder.Services.AddScoped<IPasswordHasher<UserModel>, PasswordHasher<UserModel>>();
-      
+      builder.Services.AddScoped<IEmailSender, MailService>();
    }
 
    public static void RegisterSwagger(this WebApplicationBuilder builder)

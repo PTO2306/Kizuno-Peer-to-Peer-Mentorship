@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PTO2306.Data;
@@ -18,6 +19,9 @@ public static class UserEndpoints
       user.MapPost("/login", Login);
       user.MapPost("/regresh", Refresh);
       user.MapGet("/logout", Logout);
+      user.MapPost("/register", Register);
+      user.MapGet("/verify", Verify);
+
       // user.MapGet("check-auth", CheckAuth);
    }
 
@@ -139,4 +143,61 @@ public static class UserEndpoints
       }
       return TypedResults.Ok();
    }
+   
+   private static async Task<Results<Ok<string>, BadRequest<string>>> Register(
+      [FromBody] LoginDto loginDto,
+      AppDbContext db,
+      IPasswordHasher<UserModel> hasher,
+      IEmailSender emailSender 
+   )
+   {
+      if (string.IsNullOrWhiteSpace(loginDto.Email) || string.IsNullOrWhiteSpace(loginDto.Password))
+         return TypedResults.BadRequest("Email and password are required.");
+
+      if (await db.Users.AnyAsync(u => u.Email == loginDto.Email))
+         return TypedResults.BadRequest("Email already registered.");
+
+      var user = new UserModel
+      {
+         Email = loginDto.Email,
+         PasswordHash = hasher.HashPassword(null!, loginDto.Password),
+         VerificationToken = Guid.NewGuid().ToString()
+      };
+
+      db.Users.Add(user);
+      await db.SaveChangesAsync();
+
+      // Build verification link
+      var verifyUrl = $"https://yourdomain.com/user/verify?token={user.VerificationToken}";
+
+      // Send email
+      // await emailSender.SendEmailAsync(
+      //    user.Email,
+      //    "Verify your account",
+      //    $"Click <a href='{verifyUrl}'>here</a> to verify your account."
+      // );
+
+      // return TypedResults.Ok("Registration successful. Please check your email to verify your account.");
+      return TypedResults.Ok(user.VerificationToken);
+   }
+
+   private static async Task<Results<Ok, BadRequest<string>>> Verify(
+      [FromQuery] string token,
+      AppDbContext db
+   )
+   {
+      var user = await db.Users.FirstOrDefaultAsync(u => u.VerificationToken == token);
+
+      if (user == null)
+         return TypedResults.BadRequest("Invalid verification token.");
+
+      user.IsVerified = true;
+      user.VerifiedAt = DateTime.UtcNow;
+      user.VerificationToken = null;
+
+      await db.SaveChangesAsync();
+
+      return TypedResults.Ok();
+   }
+
 }

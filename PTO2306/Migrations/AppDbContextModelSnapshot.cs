@@ -61,9 +61,18 @@ namespace PTO2306.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("VerificationToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
