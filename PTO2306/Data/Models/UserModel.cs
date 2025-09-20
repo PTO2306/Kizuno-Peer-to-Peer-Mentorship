@@ -8,4 +8,6 @@ public class UserModel
     public bool IsVerified { get; set; }
     public string? VerificationToken { get; set; }
     public DateTime? VerifiedAt { get; set; }
+    
+    public UserProfile? UserProfile { get; set; }
 }

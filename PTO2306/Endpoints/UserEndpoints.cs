@@ -1,8 +1,10 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 using PTO2306.Data;
 using PTO2306.Data.Dtos;
 using PTO2306.Data.Models;
@@ -17,15 +19,18 @@ public static class UserEndpoints
       var user = app.MapGroup("/user");
 
       user.MapPost("/login", Login);
-      user.MapPost("/regresh", Refresh);
-      user.MapGet("/logout", Logout);
+      user.MapPost("/refresh", Refresh);
       user.MapPost("/register", Register);
       user.MapGet("/verify", Verify);
 
-      // user.MapGet("check-auth", CheckAuth);
+      // Protected endpoints
+      var protectedUser = user.MapGroup("")
+         .RequireAuthorization(); 
+
+      protectedUser.MapGet("/logout", Logout);
    }
 
-   private static async Task<Results<Ok<string>, UnauthorizedHttpResult>> Login(
+   private static async Task<Results<Ok, UnauthorizedHttpResult>> Login(
       [FromBody] LoginDto loginDto,
       AppDbContext db,
       HttpContext http,
@@ -38,7 +43,7 @@ public static class UserEndpoints
          if (string.IsNullOrWhiteSpace(loginDto.Email) || string.IsNullOrWhiteSpace(loginDto.Password))
             throw new Exception();
          
-         var user = await db.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email) ?? throw new Exception();
+         var user = await db.Users.FirstOrDefaultAsync(u => u.Email == loginDto.Email && u.IsVerified == true) ?? throw new Exception();
          var result = hasher.VerifyHashedPassword(user, user.PasswordHash, loginDto.Password);
          
          if (result != PasswordVerificationResult.Success)
@@ -70,7 +75,7 @@ public static class UserEndpoints
          http.Response.Cookies.Append("accessToken", accessToken, options);
          http.Response.Cookies.Append("refreshToken", refreshToken.Token, options);
          
-         return TypedResults.Ok(accessToken);
+         return TypedResults.Ok();
 
       }
       catch (Exception)
@@ -199,5 +204,5 @@ public static class UserEndpoints
 
       return TypedResults.Ok();
    }
-
+   
 }

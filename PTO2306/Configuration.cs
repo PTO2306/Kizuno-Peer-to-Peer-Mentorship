@@ -144,6 +144,7 @@ public static class Configuration
       
       // Map endpoints
       app.MapUserEndpoints();
+      app.MapProfileEndpoints();
          
       // Swagger UI
       // if (app.Environment.IsDevelopment())
