@@ -82,6 +82,17 @@ public static class Configuration
       builder.Services
          .AddSwaggerGen(o =>
          {
+            o.SwaggerDoc("v1", new OpenApiInfo
+            {
+               Title = "PTO2306 API",
+               Version = "v1"
+            });
+
+            o.AddServer(new OpenApiServer
+            {
+               Url = "/pto2306"
+            });
+            
             OpenApiSecurityScheme scheme = new()
             {
                Name = "JWT Authentication",
@@ -114,6 +125,9 @@ public static class Configuration
    }
    public static void RegisterMiddlewares(this WebApplication app)
    {
+      app.UsePathBase("/pto2306");
+      app.UseRouting();
+      
       // Migrate on startup
       using (var scope = app.Services.CreateScope())
       {
@@ -136,7 +150,12 @@ public static class Configuration
       // {
           app.UseMiddleware<SwaggerAuth>();
           app.UseSwagger();
-          app.UseSwaggerUI();
+          app.UseSwaggerUI(c =>
+          {
+             c.SwaggerEndpoint("/pto2306/swagger/v1/swagger.json", "PTO2306 API V1");
+
+             c.RoutePrefix = "swagger";
+          });
       // }
    }
 }
