@@ -82,6 +82,17 @@ public static class Configuration
       builder.Services
          .AddSwaggerGen(o =>
          {
+            o.SwaggerDoc("v1", new OpenApiInfo
+            {
+               Title = "PTO2306 API",
+               Version = "v1"
+            });
+
+            o.AddServer(new OpenApiServer
+            {
+               Url = "/pto2306"
+            });
+            
             OpenApiSecurityScheme scheme = new()
             {
                Name = "JWT Authentication",
