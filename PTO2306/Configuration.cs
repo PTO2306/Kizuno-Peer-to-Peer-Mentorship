@@ -114,6 +114,9 @@ public static class Configuration
    }
    public static void RegisterMiddlewares(this WebApplication app)
    {
+      app.UsePathBase("/pto2306");
+      app.UseRouting();
+      
       // Migrate on startup
       using (var scope = app.Services.CreateScope())
       {
@@ -136,7 +139,12 @@ public static class Configuration
       // {
           app.UseMiddleware<SwaggerAuth>();
           app.UseSwagger();
-          app.UseSwaggerUI();
+          app.UseSwaggerUI(c =>
+          {
+             c.SwaggerEndpoint("/pto2306/swagger/v1/swagger.json", "PTO2306 API V1");
+
+             c.RoutePrefix = "swagger";
+          });
       // }
    }
 }
