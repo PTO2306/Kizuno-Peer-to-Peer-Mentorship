@@ -75,7 +75,7 @@ const OnboardingPage: React.FC = () => {
                         name="displayName"
                         value={profileData.displayName}
                         onChange={handleInputChange}
-                        placeholder="How should we call you?"
+                        placeholder="What should we call you?"
                         style={{
                             width: '100%',
                             padding: '8px',

@@ -118,24 +118,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
 
             if (response.status === 200) {
-                const userResponse = await httpClient.get("/user/profile");
-
-                if (userResponse.status === 200) {
+                try {
+                    const userResponse = await httpClient.get("/user/profile");
                     dispatch({type: "LOGIN_SUCCESS", payload: { user: userResponse.data, needsOnboarding: false}});
-                    showNotification('Welcome back!', 'success'); // ← Added success notification
-                } else if (userResponse.status === 404) {
-                    dispatch({ type: "LOGIN_SUCCESS", payload: { user: null, needsOnboarding: true}});
-                    showNotification('Login successful! Please complete your profile.', 'info'); // ← Added info notification
-                } else {
-                    dispatch({ type: "LOGIN_ERROR", payload: { error: "Error finding user profile"}});
-                    showNotification('Error loading profile. Please try again.', 'error'); // ← Added error notification
+                    showNotification('Welcome back!', 'success');
+                } catch (profileError: any) {                
+                    if (profileError.response?.status === 404) {
+                        dispatch({ type: "LOGIN_SUCCESS", payload: { user: null, needsOnboarding: true}});
+                        showNotification('Login successful! Please complete your profile.', 'info');
+                    } else if (profileError.response?.status === 401) {
+                        dispatch({ type: "LOGIN_ERROR", payload: { error: "Authentication error"}});
+                        showNotification('Authentication failed. Please try logging in again.', 'error');
+                    } else {
+                        dispatch({ type: "LOGIN_ERROR", payload: { error: "Error finding user profile"}});
+                        showNotification('Error loading profile. Please try again.', 'error');
+                    }
                 }
             }
         } catch (error: any) {
             dispatch({ type: "LOGIN_ERROR", payload: { error: error.response?.data?.message || "Login Failed" }});
-            showNotification(error.response?.data?.message || 'Login failed. Please check your credentials.', 'error'); // ← Added error notification
+            showNotification(error.response?.data?.message || 'Login failed. Please check your credentials.', 'error');
         }
-        }
+    };
 
     const logout = async () => {
         try {

@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
         <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
             {!isAuthenticated ? (
                 <>
-                    <h1>Login to your account</h1>
+                    <h1 className='text-2xl p-4 text-center'>Login to your account</h1>
                     
                     <form onSubmit={handleSubmit}>
                         <div style={{ marginBottom: '15px' }}>
