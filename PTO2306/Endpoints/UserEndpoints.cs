@@ -25,8 +25,9 @@ public static class UserEndpoints
 
       // Protected endpoints
       var protectedUser = user.MapGroup("")
-         .RequireAuthorization(); 
+         .RequireAuthorization();
 
+      protectedUser.MapGet("/status", CheckAuth);
       protectedUser.MapGet("/logout", Logout);
    }
 
@@ -204,5 +205,9 @@ public static class UserEndpoints
 
       return TypedResults.Ok();
    }
-   
+
+   private static Results<Ok, BadRequest> CheckAuth()
+   {
+      return TypedResults.Ok();
+   }
 }
