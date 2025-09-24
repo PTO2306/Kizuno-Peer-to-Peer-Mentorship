@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import httpClient from '../auth/httpClient';
-
+import ClassCard from '../components/UI components/card/ClassCard';
+import CardMedia from '../assets/skill-card-placeholder.jpg';
+import CardMedia2 from '../assets/skill-card-placeholder2.jpg';
+import CardMedia3 from '../assets/skill-card-placeholder3.jpg';
+ 
 const DashboardPage: React.FC = () => {
     const { user, logout, showNotification } = useAuth();
     const [profile, setProfile] = useState<any>(null);
@@ -37,7 +41,7 @@ const DashboardPage: React.FC = () => {
     }
 
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
             {/* Header */}
             <div style={{ 
                 display: 'flex', 
@@ -132,35 +136,92 @@ const DashboardPage: React.FC = () => {
                 border: '1px solid #dee2e6'
             }}>
                 <h2>Quick Actions</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
-                    <div style={{
-                        padding: '15px',
-                        backgroundColor: '#f8f9fa',
-                        borderRadius: '6px',
-                        textAlign: 'center'
-                    }}>
-                        <h3>Feature 1</h3>
-                        <p>Coming soon...</p>
+                    <div className="flex flex-wrap gap-4 max-h-[80vh] overflow-y-auto p-4">
+                    <ClassCard 
+                        media={CardMedia}
+                        title='Terrarium Workshop'
+                        mentor='Michael Scott'
+                        desc='Join our terrarium workshop!'
+                        level='beginner'
+                    />
+                    <ClassCard 
+                        media={CardMedia2}
+                        title='Dota 2 Coaching'
+                        mentor='Liz Mouton'
+                        desc='Coaching for position 4'
+                        level='intermediate'
+                    />
+                    <ClassCard 
+                        media={CardMedia3}
+                        title='Frontend Developer Support'
+                        mentor='Chanel Brits'
+                        desc='Get support from a senior frontend dev'
+                        level='advanced'
+                    />
+                                        <ClassCard 
+                        media={CardMedia}
+                        title='Terrarium Workshop'
+                        mentor='Michael Scott'
+                        desc='Join our terrarium workshop!'
+                        level='beginner'
+                    />
+                    <ClassCard 
+                        media={CardMedia2}
+                        title='Dota 2 Coaching'
+                        mentor='Liz Mouton'
+                        desc='Coaching for position 4'
+                        level='intermediate'
+                    />
+                    <ClassCard 
+                        media={CardMedia3}
+                        title='Frontend Developer Support'
+                        mentor='Chanel Brits'
+                        desc='Get support from a senior frontend dev'
+                        level='advanced'
+                    />
+                                        <ClassCard 
+                        media={CardMedia}
+                        title='Terrarium Workshop'
+                        mentor='Michael Scott'
+                        desc='Join our terrarium workshop!'
+                        level='beginner'
+                    />
+                    <ClassCard 
+                        media={CardMedia2}
+                        title='Dota 2 Coaching'
+                        mentor='Liz Mouton'
+                        desc='Coaching for position 4'
+                        level='intermediate'
+                    />
+                    <ClassCard 
+                        media={CardMedia3}
+                        title='Frontend Developer Support'
+                        mentor='Chanel Brits'
+                        desc='Get support from a senior frontend dev'
+                        level='advanced'
+                    />
+                                        <ClassCard 
+                        media={CardMedia}
+                        title='Terrarium Workshop'
+                        mentor='Michael Scott'
+                        desc='Join our terrarium workshop!'
+                        level='beginner'
+                    />
+                    <ClassCard 
+                        media={CardMedia2}
+                        title='Dota 2 Coaching'
+                        mentor='Liz Mouton'
+                        desc='Coaching for position 4'
+                        level='intermediate'
+                    />
+                    <ClassCard 
+                        media={CardMedia3}
+                        title='Frontend Developer Support'
+                        mentor='Chanel Brits'
+                        desc='Get support from a senior frontend dev'
+                        level='advanced'
+                    />
                     </div>
-                    <div style={{
-                        padding: '15px',
-                        backgroundColor: '#f8f9fa',
-                        borderRadius: '6px',
-                        textAlign: 'center'
-                    }}>
-                        <h3>Feature 2</h3>
-                        <p>Coming soon...</p>
-                    </div>
-                    <div style={{
-                        padding: '15px',
-                        backgroundColor: '#f8f9fa',
-                        borderRadius: '6px',
-                        textAlign: 'center'
-                    }}>
-                        <h3>Feature 3</h3>
-                        <p>Coming soon...</p>
-                    </div>
-                </div>
             </div>
         </div>
     );
