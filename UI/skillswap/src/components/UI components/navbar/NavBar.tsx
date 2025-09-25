@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../../../auth/AuthContext';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -11,8 +12,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import Avatar from '@mui/material/Avatar';
 import { Menu, MenuItem, Tooltip } from '@mui/material';
 
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-
+// MUI pre-packaged styling
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -56,7 +56,19 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const NavBar: React.FC = () => {
+    const { logout } = useAuth();
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+
+    /** User menu item labels and click handlers */
+    const settings = [
+    {
+        label: 'Profile',
+    },
+    {
+        label: 'Logout',
+        onClick: () => logout()
+    }
+]
 
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
@@ -117,9 +129,10 @@ const NavBar: React.FC = () => {
                         open={Boolean(anchorElUser)}
                         onClose={handleCloseUserMenu}
                     >
-                        {settings.map((setting) => (
-                            <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                        {/* Maps over user menu items and creates each menu item and assigns them labels and click handlers */}
+                        {settings.map(({ label, onClick }) => (
+                            <MenuItem key={label} onClick={onClick}>
+                                <Typography sx={{ textAlign: 'center' }}>{label}</Typography>
                             </MenuItem>
                         ))}
                     </Menu>

@@ -5,9 +5,10 @@ import ClassCard from '../components/UI components/card/ClassCard';
 import CardMedia from '../assets/skill-card-placeholder.jpg';
 import CardMedia2 from '../assets/skill-card-placeholder2.jpg';
 import CardMedia3 from '../assets/skill-card-placeholder3.jpg';
+import NavBar from '../components/UI components/navbar/NavBar';
  
 const DashboardPage: React.FC = () => {
-    const { user, logout, showNotification } = useAuth();
+    const { user, showNotification } = useAuth();
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
@@ -28,10 +29,6 @@ const DashboardPage: React.FC = () => {
         fetchProfile();
     }, [showNotification]);
 
-    const handleLogout = () => {
-        logout();
-    };
-
     if (loading) {
         return (
             <div style={{ textAlign: 'center', padding: '50px' }}>
@@ -42,6 +39,7 @@ const DashboardPage: React.FC = () => {
 
     return (
         <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
+            <NavBar />
             {/* Header */}
             <div style={{ 
                 display: 'flex', 
@@ -58,21 +56,8 @@ const DashboardPage: React.FC = () => {
                         Welcome back{profile?.displayName ? `, ${profile.displayName}` : ''}!
                     </p>
                 </div>
-                <button
-                    onClick={handleLogout}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#6c757d',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Logout
-                </button>
             </div>
-
+            
             {/* Profile Section */}
             <div style={{
                 backgroundColor: 'white',
