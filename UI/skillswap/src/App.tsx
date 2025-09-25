@@ -1,6 +1,6 @@
 import { Routes, Route, BrowserRouter } from 'react-router';
 import { AuthProvider } from './auth/AuthContext';
-import ProtectedRoute from './components/ProtectedRoutes';
+import AuthGuard from './auth/AuthGuard';
 import Notification from './components/Notification';
 
 // Pages
@@ -9,39 +9,42 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import OnboardingPage from './pages/OnboardingPage';
 import DashboardPage from './pages/DashboardPage';
+import { ProfileProvider } from './auth/ProfileContext';
 
 function App() {
-    return (
-        <AuthProvider>
-          <BrowserRouter>
-                <Routes>
-                    {/* Public routes */}
-                    <Route path="/" element={<LandingPage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    
-                    {/* Protected routes */}
-                    <Route 
-                        path="/onboarding" 
-                        element={
-                            <ProtectedRoute>
-                                <OnboardingPage />
-                            </ProtectedRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/dashboard" 
-                        element={
-                            <ProtectedRoute requireProfile={true}>
-                                <DashboardPage />
-                            </ProtectedRoute>
-                        } 
-                    />
-                </Routes>
-                <Notification />
-         </BrowserRouter>
-        </AuthProvider>
-    );
+  return (
+    <AuthProvider>
+      <ProfileProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            {/* Protected routes */}
+            <Route
+              path="/onboarding"
+              element={
+                <AuthGuard>
+                  <OnboardingPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <AuthGuard requireProfile={true}>
+                  <DashboardPage />
+                </AuthGuard>
+              }
+            />
+          </Routes>
+          <Notification />
+        </BrowserRouter>
+      </ProfileProvider>
+    </AuthProvider>
+  );
 }
 
 export default App;
