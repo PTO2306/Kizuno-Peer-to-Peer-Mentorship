@@ -122,6 +122,9 @@ namespace PTO2306.Migrations
                     b.Property<bool>("IsMentor")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
