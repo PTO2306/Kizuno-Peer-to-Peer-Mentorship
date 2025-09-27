@@ -19,8 +19,8 @@ public static class ProfileEndpoints
             .RequireAuthorization(); 
 
         protectedUser.MapGet("/profile", GetProfile);
-        protectedUser.MapPost("/profile", CreateProfile);
-        protectedUser.MapPut("/profile", UpdateProfile);
+        protectedUser.MapPost("/profile", CreateProfile).DisableAntiforgery();
+        protectedUser.MapPut("/profile", UpdateProfile).DisableAntiforgery();
     }
    private static async Task<Results<Ok<UserProfileDto>, NotFound>> GetProfile(
       AppDbContext db,

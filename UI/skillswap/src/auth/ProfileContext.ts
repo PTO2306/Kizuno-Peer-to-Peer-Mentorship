@@ -93,7 +93,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
     setError(null);
 
     try {
-      const response = await httpClient.put('/user/profile', profileData);
+      const response = await httpClient.put('/user/profile', profileData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
       if (response.status === 200) {
         setProfile(response.data);
@@ -123,7 +125,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
     setError(null);
 
     try {
-      const response = await httpClient.post('/user/profile', profileData);
+      const response = await httpClient.post('/user/profile', profileData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
       if (response.status === 200 || response.status === 201) {
         setProfile(response.data);
