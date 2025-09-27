@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { useAuth } from '../auth/AuthContext';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import httpClient from '../auth/httpClient';
-import { TextField, Button, CircularProgress, Chip, Box, Typography, Stepper, Step, StepLabel } from '@mui/material';
+import { TextField, Button, CircularProgress, Chip, Box, Typography, Stepper, Step, StepLabel, Card, CardContent, Avatar, IconButton } from '@mui/material';
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useProfile } from '../auth/ProfileContext';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import Delete from '@mui/icons-material/Delete';
 
 const steps = ['Tell us about yourself', 'Skills and Interests'];
 
@@ -16,22 +16,25 @@ const profileSchema = z.object({
   city: z.string().max(50).optional(),
   country: z.string().max(50).optional(),
   skills: z.array(z.string()).optional(),
+  profilePicture: z.instanceof(File).optional(),
 });
 
 type ProfileForm = z.infer<typeof profileSchema>;
 
 const OnboardingPage: React.FC = () => {
-  const { createProfile, showNotification } = useProfile();
+  const { createProfile, showNotification, profile } = useProfile();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [skillInput, setSkillInput] = useState("");
+  const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
 
   const {
     control,
     handleSubmit,
     setValue,
     getValues,
+    watch,
     formState: { errors, dirtyFields, isValid },
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -42,8 +45,53 @@ const OnboardingPage: React.FC = () => {
       city: "",
       country: "",
       skills: [],
+      profilePicture: undefined
     },
   });
+
+  const profilePicture = watch("profilePicture");
+
+  useEffect(() => {
+    if (profile) {
+      navigate('/dashboard');
+    }
+  });
+
+  useEffect(() => {
+    if (profilePicture) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfilePicPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(profilePicture);
+    } else {
+      setProfilePicPreview(null);
+    }
+  }, [profilePicture]);
+
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>, onChange: (value: File | undefined) => void) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        showNotification('Please select a valid image file', 'error');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        showNotification('Image size should be less than 5MB', 'error');
+        return;
+      }
+
+      onChange(file);
+    } else {
+      onChange(undefined)
+    }
+  };
+
+  const handleRemoveProfilePicture = () => {
+    setValue("profilePicture", undefined, { shouldDirty: true });
+    setProfilePicPreview(null);
+  };
 
   const handleAddSkill = () => {
     if (skillInput.trim()) {
@@ -69,7 +117,19 @@ const OnboardingPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await createProfile(data);
+      const formData = new FormData();
+
+      formData.append('displayName', data.displayName);
+      if (data.bio) formData.append('bio', data.bio);
+      if (data.city) formData.append('city', data.city);
+      if (data.country) formData.append('country', data.country);
+      if (data.skills) formData.append('skills', JSON.stringify(data.skills));
+
+      if (data.profilePicture) {
+        formData.append('profilePicture', data.profilePicture);
+      }
+
+      const response = await createProfile(formData);
 
       if (response.success) {
         navigate('/dashboard');
@@ -108,6 +168,67 @@ const OnboardingPage: React.FC = () => {
           {/* Step 1: Basic info */}
           {activeStep === 0 && (
             <Box className="space-y-6">
+
+              <Box className="flex flex-col items-center ">
+                <Typography variant="h6" className="text-center">
+                  Profile Picture
+                </Typography>
+
+                <Card className="relative w-full">
+                  <CardContent className="flex flex-col items-center p-4">
+                    <Avatar
+                      src={profilePicPreview || undefined}
+                      sx={{ width: 120, height: 120, mb: 2 }}
+                    >
+                      {!profilePicPreview && getValues("displayName")?.charAt(0)?.toUpperCase()}
+                    </Avatar>
+
+                    <Box className="flex gap-2">
+                      <Controller
+                        name="profilePicture"
+                        control={control}
+                        render={({ field: { onChange } }) => (
+                          <>
+                            <input
+                              accept="image/*"
+                              style={{ display: 'none' }}
+                              id="profile-picture-upload"
+                              type="file"
+                              onChange={(e) => handleProfilePictureChange(e, onChange)}
+                            />
+                            <label htmlFor="profile-picture-upload">
+                              <IconButton
+                                color="primary"
+                                aria-label="upload picture"
+                                component="span"
+                                size="large"
+                              >
+                                <PhotoCamera />
+                              </IconButton>
+                            </label>
+                          </>
+                        )}
+                      />
+
+                      {profilePicPreview && (
+                        <IconButton
+                          color="error"
+                          aria-label="remove picture"
+                          onClick={handleRemoveProfilePicture}
+                          size="large"
+                        >
+                          <Delete />
+                        </IconButton>
+                      )}
+                    </Box>
+
+                    <Typography variant="caption" color="textSecondary" className="text-center mt-2">
+                      Click the camera icon to upload a profile picture (max 5MB)
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Box>
+
               <Controller
                 name="displayName"
                 control={control}
@@ -122,6 +243,7 @@ const OnboardingPage: React.FC = () => {
                   />
                 )}
               />
+
 
               <Controller
                 name="bio"

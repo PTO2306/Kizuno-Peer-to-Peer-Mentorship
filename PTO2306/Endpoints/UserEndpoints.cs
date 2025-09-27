@@ -25,8 +25,9 @@ public static class UserEndpoints
 
       // Protected endpoints
       var protectedUser = user.MapGroup("")
-         .RequireAuthorization(); 
+         .RequireAuthorization();
 
+      protectedUser.MapGet("/status", CheckAuth);
       protectedUser.MapGet("/logout", Logout);
    }
 
@@ -137,15 +138,24 @@ public static class UserEndpoints
       HttpContext http
    )
    {
-      http.Response.Cookies.Delete("accessToken");
-      http.Response.Cookies.Delete("refreshToken");
       
-      var storedToken = await db.RefreshTokens.FirstOrDefaultAsync(x => x.Token == http.Request.Cookies["accessToken"]);
+      var storedToken = await db.RefreshTokens.FirstOrDefaultAsync(x => x.Token == http.Request.Cookies["refreshToken"]);
       if (storedToken != null)
       {
          db.RefreshTokens.Remove(storedToken);
          await db.SaveChangesAsync();
       }
+      
+      CookieOptions options = new()
+      {
+         HttpOnly = true,
+         Secure = true,
+         SameSite = SameSiteMode.None,
+      };
+      
+      http.Response.Cookies.Delete("accessToken", options);
+      http.Response.Cookies.Delete("refreshToken", options);
+      
       return TypedResults.Ok();
    }
    
@@ -204,5 +214,9 @@ public static class UserEndpoints
 
       return TypedResults.Ok();
    }
-   
+
+   private static Results<Ok, BadRequest> CheckAuth()
+   {
+      return TypedResults.Ok();
+   }
 }

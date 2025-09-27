@@ -16,8 +16,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { profile, loading: profileLoading } = useProfile();
   const location = useLocation();
 
-  console.log('ProtectedRoute - Auth:', isAuthenticated, 'Profile:', profile, 'ProfileLoading:', profileLoading);
-
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">

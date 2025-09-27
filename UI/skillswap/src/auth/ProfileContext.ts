@@ -15,8 +15,8 @@ interface ProfileContextType {
     show: boolean;
   } | null;
   fetchProfile: () => Promise<void>;
-  updateProfile: (profileData: ProfileModel) => Promise<{ success: boolean }>;
-  createProfile: (profileData: ProfileModel) => Promise<{ success: boolean }>;
+  updateProfile: (profileData: FormData) => Promise<{ success: boolean }>;
+  createProfile: (profileData: FormData) => Promise<{ success: boolean }>;
   showNotification: (
     message: string,
     type: 'success' | 'error' | 'info'
@@ -88,7 +88,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const updateProfile = async (profileData: ProfileModel) => {
+  const updateProfile = async (profileData: FormData) => {
     setLoading(true);
     setError(null);
 
@@ -118,7 +118,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
     return { success: false };
   };
 
-  const createProfile = async (profileData: ProfileModel) => {
+  const createProfile = async (profileData: FormData) => {
     setLoading(true);
     setError(null);
 
