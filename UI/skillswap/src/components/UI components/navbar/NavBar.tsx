@@ -1,6 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
-import { useAuth } from '../../../auth/AuthContext';
 import { useProfile } from '../../../auth/ProfileContext';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
@@ -12,7 +10,8 @@ import InputBase from '@mui/material/InputBase';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import Avatar from '@mui/material/Avatar';
-import { Menu, MenuItem, Tooltip } from '@mui/material';
+import { Menu, Tooltip } from '@mui/material';
+import UserMenuItems from './UserMenuItems';
 
 
 // MUI pre-packaged styling
@@ -59,22 +58,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const NavBar: React.FC = () => {
-    const { logout } = useAuth();
-    const navigate = useNavigate();
     const { profile } = useProfile();
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
-    /** User menu item labels and click handlers */
-    const settings = [
-    {
-        label: 'Profile',
-        onClick: () => navigate('/profile')
-    },
-    {
-        label: 'Logout',
-        onClick: () => logout()
-    }
-]
 
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
@@ -135,12 +121,7 @@ const NavBar: React.FC = () => {
                         open={Boolean(anchorElUser)}
                         onClose={handleCloseUserMenu}
                     >
-                        {/* Maps over user menu items and creates each menu item and assigns them labels and click handlers */}
-                        {settings.map(({ label, onClick }) => (
-                            <MenuItem key={label} onClick={onClick}>
-                                <Typography sx={{ textAlign: 'center' }}>{label}</Typography>
-                            </MenuItem>
-                        ))}
+                        <UserMenuItems />
                     </Menu>
                 </Toolbar>
             </AppBar>
