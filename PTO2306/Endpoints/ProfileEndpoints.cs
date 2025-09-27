@@ -41,7 +41,8 @@ public static class ProfileEndpoints
             Bio = p.Bio,
             City = p.City,
             Country = p.Country,
-            Skills = p.Skills.Select(us => us.Skill.Name).ToList()
+            Skills = p.Skills.Select(us => us.Skill.Name).ToList(),
+            ProfilePictureUrl = p.ProfilePictureUrl,
          })
          .FirstOrDefaultAsync();
       
@@ -118,7 +119,8 @@ public static class ProfileEndpoints
          Bio = profile.Bio,
          City = profile.City,
          Country = profile.Country,
-         Skills = profile.Skills.Select(s => s.Skill.Name).ToList()
+         Skills = profile.Skills.Select(s => s.Skill.Name).ToList(),
+         ProfilePictureUrl = profile.ProfilePictureUrl
       });
 
    }
@@ -197,7 +199,8 @@ public static class ProfileEndpoints
          Bio = profile.Bio,
          City = profile.City,
          Country = profile.Country,
-         Skills = profile.Skills.Select(s => s.Skill.Name).ToList()
+         Skills = profile.Skills.Select(s => s.Skill.Name).ToList(),
+         ProfilePictureUrl = profile.ProfilePictureUrl
       });
 
    }
