@@ -4,6 +4,8 @@ import ClassCard from '../components/UI components/card/ClassCard';
 import CardMedia from '../assets/skill-card-placeholder.jpg';
 import CardMedia2 from '../assets/skill-card-placeholder2.jpg';
 import CardMedia3 from '../assets/skill-card-placeholder3.jpg';
+import NavBar from '../components/UI components/navbar/NavBar';
+ 
 import { useProfile } from '../auth/ProfileContext';
 
 const DashboardPage: React.FC = () => {
@@ -25,6 +27,7 @@ const DashboardPage: React.FC = () => {
 
     return (
         <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
+            <NavBar />
             {/* Header */}
             <div style={{
                 display: 'flex',
@@ -41,21 +44,8 @@ const DashboardPage: React.FC = () => {
                         {/* Welcome back{profile?.displayName ? `, ${profile.displayName}` : ''}! */}
                     </p>
                 </div>
-                <button
-                    onClick={handleLogout}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#6c757d',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Logout
-                </button>
             </div>
-
+            
             {/* Profile Section */}
             <div style={{
                 backgroundColor: 'white',
