@@ -1,17 +1,19 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router'
-import Homepage from './pages/Homepage'
-import Login from './pages/Login'
-import './index.css'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import './index.css';
+import { StyledEngineProvider } from '@mui/material/styles';
+import GlobalStyles from '@mui/material/GlobalStyles';
+import { ThemeProvider } from '@mui/material';
+import { darkTheme, lightTheme } from './theme/theme';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path='/' element={<Homepage />}/>
-        <Route path='/login' element={<Login />}/>
-      </Routes>
-    </BrowserRouter>
-  </StrictMode>,
-)
+  // <StrictMode>
+  <StyledEngineProvider enableCssLayer>
+    <ThemeProvider theme={lightTheme}>
+      <GlobalStyles styles='@layer theme, base, mui, components, utilities;' />
+      <App />
+    </ThemeProvider>
+  </StyledEngineProvider>
+  // </StrictMode>
+);
