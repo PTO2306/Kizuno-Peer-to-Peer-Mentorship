@@ -10,6 +10,7 @@ import RegisterPage from './pages/RegisterPage';
 import OnboardingPage from './pages/OnboardingPage';
 import DashboardPage from './pages/DashboardPage';
 import { ProfileProvider } from './auth/ProfileContext';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-
+            <Route path="/profile" element={<ProfilePage />}  />
+            
             {/* Protected routes */}
             <Route
               path="/onboarding"
