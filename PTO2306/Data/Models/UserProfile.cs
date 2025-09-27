@@ -13,6 +13,8 @@ public class UserProfile
 
     public bool IsMentor { get; set; }
     public bool IsMentee { get; set; }
+    
+    public string? ProfilePictureUrl { get; set; } 
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }

@@ -1,143 +1,203 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router';
+import { useNavigate } from 'react-router';
+import { Link as RouterLink } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
+import z from 'zod';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Alert, Button, CircularProgress, IconButton, InputAdornment, Paper, TextField, Typography } from '@mui/material';
+import Email from '@mui/icons-material/Email';
+import Lock from '@mui/icons-material/Lock';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+
+const loginSchema = z.object({
+  email: z
+    .email('Please enter a valid email address')
+    .min(1, 'Email is required'),
+  password: z
+    .string()
+    .min(1, 'Password is required')
+  // .min(6, 'Password must be at least 6 characters'),
+});
+type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage: React.FC = () => {
-    const { login, logout, isAuthenticated, loading, error, user, needsOnboarding } = useAuth();
-    const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const navigate = useNavigate();
+  const { login, loading, error } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
 
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setCredentials({
-            ...credentials,
-            [name]: value
-        });
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        login(credentials);
-    };
-
-    const handleLogout = () => {
-        logout();
-    };
-
-    if (loading) {
-        return <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>;
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const result = await login(data);
+      if (result.success) {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError('root', {
+        type: 'manual',
+        message: 'An unexpected error occurred. Please try again.',
+      });
     }
+  };
 
-    return (
-        <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
-            {!isAuthenticated ? (
-                <>
-                    <h1 className='text-2xl p-4 text-center'>Login to your account</h1>
-                    
-                    <form onSubmit={handleSubmit}>
-                        <div style={{ marginBottom: '15px' }}>
-                            <label htmlFor="email">Email:</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={credentials.email}
-                                onChange={handleInputChange}
-                                required
-                                style={{
-                                    width: '100%',
-                                    padding: '8px',
-                                    marginTop: '5px',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '4px'
-                                }}
-                            />
-                        </div>
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
-                        <div style={{ marginBottom: '15px' }}>
-                            <label htmlFor="password">Password:</label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={credentials.password}
-                                onChange={handleInputChange}
-                                required
-                                style={{
-                                    width: '100%',
-                                    padding: '8px',
-                                    marginTop: '5px',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '4px'
-                                }}
-                            />
-                        </div>
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        <Paper
+          elevation={3}
+          className="p-8 rounded-xl shadow-xl bg-white"
+        >
+          {/* Header */}
+          <div className="text-center mb-8">
+            <Typography
+              component="h1"
+              variant="h4"
+              className="font-bold text-gray-900 mb-2"
+            >
+              Welcome Back
+            </Typography>
+            <Typography
+              variant="body2"
+              className="text-gray-600"
+            >
+              Sign in to your account to continue
+            </Typography>
+          </div>
 
-                        <button
-                            type="submit"
-                            style={{
-                                width: '100%',
-                                padding: '10px',
-                                backgroundColor: '#007bff',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
+          {/* Error Alert */}
+          {error && (
+            <Alert
+              severity="error"
+              className="w-full mb-6 rounded-lg"
+            >
+              {error}
+            </Alert>
+          )}
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Email Field */}
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Email Address"
+                  type="email"
+                  autoComplete="email"
+                  autoFocus
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  className="bg-white"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Email className="text-gray-400" />
+                      </InputAdornment>
+                    ),
+                    className: "rounded-lg",
+                  }}
+                />
+              )}
+            />
+
+            {/* Password Field */}
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  className="bg-white"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Lock className="text-gray-400" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          edge="end"
+                          className="text-gray-400 hover:text-gray-600"
                         >
-                            Login
-                        </button>
-                    </form>
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                    className: "rounded-lg",
+                  }}
+                />
+              )}
+            />
 
-                    {error && (
-                        <div style={{ 
-                            marginTop: '15px', 
-                            padding: '10px', 
-                            backgroundColor: '#f8d7da', 
-                            color: '#721c24', 
-                            border: '1px solid #f5c6cb',
-                            borderRadius: '4px' 
-                        }}>
-                            {error}
-                        </div>
-                    )}
-
-                    <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                        <Link to="/register">Don't have an account? Register here</Link>
-                    </div>
-                </>
-            ) : (
-                <div style={{ textAlign: 'center' }}>
-                    <h2>✅ Welcome back!</h2>
-                    {needsOnboarding ? (
-                        <div>
-                            <p>⚠️ Complete your profile to get started</p>
-                            <Link to="/onboarding">Complete Profile</Link>
-                        </div>
-                    ) : (
-                        <div>
-                            <p>👤 {user?.email || 'User'}</p>
-                            <Link to="/dashboard">Go to Dashboard</Link>
-                        </div>
-                    )}
-                    <button 
-                        onClick={handleLogout}
-                        style={{
-                            marginTop: '20px',
-                            padding: '10px 20px',
-                            backgroundColor: '#6c757d',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Logout
-                    </button>
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              disabled={loading}
+              className="py-3 rounded-lg font-semibold text-base normal-case shadow-lg transition-all duration-200"
+            >
+              {loading ? (
+                <div className="flex items-center">
+                  <CircularProgress size={20} className="mr-2 text-white" />
+                  <span>Signing In...</span>
                 </div>
-            )}
-        </div>
-    );
+              ) : (
+                'Sign In'
+              )}
+            </Button>
+
+            {/* Sign Up Link */}
+            <div className="text-center mt-6">
+              <Typography variant="body2" className="text-gray-600">
+                Don't have an account?{' '}
+                <Button
+                  component={RouterLink}
+                  to="/register"
+                  variant="text"
+                  className="font-semibold text-blue-600 hover:text-blue-700 normal-case p-0 min-w-0 hover:bg-transparent underline-offset-2 hover:underline"
+                >
+                  Sign up
+                </Button>
+              </Typography>
+            </div>
+          </form>
+        </Paper>
+      </div>
+    </div>
+  );
 };
 
 export default LoginPage;

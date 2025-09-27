@@ -1,33 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import httpClient from '../auth/httpClient';
 import ClassCard from '../components/UI components/card/ClassCard';
 import CardMedia from '../assets/skill-card-placeholder.jpg';
 import CardMedia2 from '../assets/skill-card-placeholder2.jpg';
 import CardMedia3 from '../assets/skill-card-placeholder3.jpg';
 import NavBar from '../components/UI components/navbar/NavBar';
  
+import { useProfile } from '../auth/ProfileContext';
+
 const DashboardPage: React.FC = () => {
-    const { user, showNotification } = useAuth();
-    const [profile, setProfile] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+    const { logout, showNotification } = useAuth();
+    const { profile } = useProfile();
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const response = await httpClient.get('/user/profile');
-                if (response.status === 200) {
-                    setProfile(response.data);
-                }
-            } catch  {
-                showNotification('Failed to load profile', 'error');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProfile();
-    }, [showNotification]);
+    const handleLogout = () => {
+        logout();
+    };
 
     if (loading) {
         return (
@@ -41,9 +29,9 @@ const DashboardPage: React.FC = () => {
         <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
             <NavBar />
             {/* Header */}
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: '30px',
                 padding: '20px',
@@ -53,7 +41,7 @@ const DashboardPage: React.FC = () => {
                 <div>
                     <h1>Dashboard</h1>
                     <p style={{ margin: 0, color: '#666' }}>
-                        Welcome back{profile?.displayName ? `, ${profile.displayName}` : ''}!
+                        {/* Welcome back{profile?.displayName ? `, ${profile.displayName}` : ''}! */}
                     </p>
                 </div>
             </div>
@@ -70,15 +58,15 @@ const DashboardPage: React.FC = () => {
                 {profile ? (
                     <div>
                         <p><strong>Display Name:</strong> {profile.displayName || 'Not set'}</p>
-                        <p><strong>Email:</strong> {user?.email}</p>
+                        <p><strong>Email:</strong> {profile?.email}</p>
                         <p><strong>Bio:</strong> {profile.bio || 'Not set'}</p>
-                        <p><strong>Location:</strong> {profile.city && profile.country 
-                            ? `${profile.city}, ${profile.country}` 
+                        <p><strong>Location:</strong> {profile.city && profile.country
+                            ? `${profile.city}, ${profile.country}`
                             : profile.city || profile.country || 'Not set'}</p>
-                        <p><strong>Skills:</strong> {profile.skills && profile.skills.length > 0 
-                            ? profile.skills.join(', ') 
+                        <p><strong>Skills:</strong> {profile.skills && profile.skills.length > 0
+                            ? profile.skills.join(', ')
                             : 'Not set'}</p>
-                        
+
                         <button
                             style={{
                                 marginTop: '15px',
@@ -121,92 +109,92 @@ const DashboardPage: React.FC = () => {
                 border: '1px solid #dee2e6'
             }}>
                 <h2>Quick Actions</h2>
-                    <div className="flex flex-wrap gap-4 max-h-[80vh] overflow-y-auto p-4">
-                    <ClassCard 
+                <div className="flex flex-wrap gap-4 max-h-[80vh] overflow-y-auto p-4">
+                    <ClassCard
                         media={CardMedia}
                         title='Terrarium Workshop'
                         mentor='Michael Scott'
                         desc='Join our terrarium workshop!'
                         level='beginner'
                     />
-                    <ClassCard 
+                    <ClassCard
                         media={CardMedia2}
                         title='Dota 2 Coaching'
                         mentor='Liz Mouton'
                         desc='Coaching for position 4'
                         level='intermediate'
                     />
-                    <ClassCard 
+                    <ClassCard
                         media={CardMedia3}
                         title='Frontend Developer Support'
                         mentor='Chanel Brits'
                         desc='Get support from a senior frontend dev'
                         level='advanced'
                     />
-                                        <ClassCard 
+                    <ClassCard
                         media={CardMedia}
                         title='Terrarium Workshop'
                         mentor='Michael Scott'
                         desc='Join our terrarium workshop!'
                         level='beginner'
                     />
-                    <ClassCard 
+                    <ClassCard
                         media={CardMedia2}
                         title='Dota 2 Coaching'
                         mentor='Liz Mouton'
                         desc='Coaching for position 4'
                         level='intermediate'
                     />
-                    <ClassCard 
+                    <ClassCard
                         media={CardMedia3}
                         title='Frontend Developer Support'
                         mentor='Chanel Brits'
                         desc='Get support from a senior frontend dev'
                         level='advanced'
                     />
-                                        <ClassCard 
+                    <ClassCard
                         media={CardMedia}
                         title='Terrarium Workshop'
                         mentor='Michael Scott'
                         desc='Join our terrarium workshop!'
                         level='beginner'
                     />
-                    <ClassCard 
+                    <ClassCard
                         media={CardMedia2}
                         title='Dota 2 Coaching'
                         mentor='Liz Mouton'
                         desc='Coaching for position 4'
                         level='intermediate'
                     />
-                    <ClassCard 
+                    <ClassCard
                         media={CardMedia3}
                         title='Frontend Developer Support'
                         mentor='Chanel Brits'
                         desc='Get support from a senior frontend dev'
                         level='advanced'
                     />
-                                        <ClassCard 
+                    <ClassCard
                         media={CardMedia}
                         title='Terrarium Workshop'
                         mentor='Michael Scott'
                         desc='Join our terrarium workshop!'
                         level='beginner'
                     />
-                    <ClassCard 
+                    <ClassCard
                         media={CardMedia2}
                         title='Dota 2 Coaching'
                         mentor='Liz Mouton'
                         desc='Coaching for position 4'
                         level='intermediate'
                     />
-                    <ClassCard 
+                    <ClassCard
                         media={CardMedia3}
                         title='Frontend Developer Support'
                         mentor='Chanel Brits'
                         desc='Get support from a senior frontend dev'
                         level='advanced'
                     />
-                    </div>
+                </div>
             </div>
         </div>
     );
