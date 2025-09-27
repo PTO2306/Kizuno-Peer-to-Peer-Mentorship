@@ -1,5 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import { useAuth } from '../../../auth/AuthContext';
+import { useProfile } from '../../../auth/ProfileContext';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -11,7 +13,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import Avatar from '@mui/material/Avatar';
 import { Menu, MenuItem, Tooltip } from '@mui/material';
-import { useNavigate } from 'react-router';
+
 
 // MUI pre-packaged styling
 const Search = styled('div')(({ theme }) => ({
@@ -59,6 +61,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const NavBar: React.FC = () => {
     const { logout } = useAuth();
     const navigate = useNavigate();
+    const { profile } = useProfile();
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
     /** User menu item labels and click handlers */
@@ -113,7 +116,7 @@ const NavBar: React.FC = () => {
                     </Search>
                     <Tooltip title="Open settings">
                         <IconButton onClick={handleOpenUserMenu} sx={{ ml: 2 }}>
-                            <Avatar alt="User picture" src=".../assets/react.svg" />
+                            <Avatar alt="User picture" src={profile?.profilePictureUrl || undefined } />
                         </IconButton>
                     </Tooltip>
                     <Menu
