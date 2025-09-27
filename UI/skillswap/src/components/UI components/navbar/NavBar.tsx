@@ -11,6 +11,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import Avatar from '@mui/material/Avatar';
 import { Menu, MenuItem, Tooltip } from '@mui/material';
+import { useNavigate } from 'react-router';
 
 // MUI pre-packaged styling
 const Search = styled('div')(({ theme }) => ({
@@ -57,12 +58,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const NavBar: React.FC = () => {
     const { logout } = useAuth();
+    const navigate = useNavigate();
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
     /** User menu item labels and click handlers */
     const settings = [
     {
         label: 'Profile',
+        onClick: () => navigate('/profile')
     },
     {
         label: 'Logout',
