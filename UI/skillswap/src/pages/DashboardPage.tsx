@@ -1,30 +1,15 @@
-import React, { useState } from 'react';
-import { useAuth } from '../auth/AuthContext';
+import React  from 'react';
 import ClassCard from '../components/UI components/card/ClassCard';
 import CardMedia from '../assets/skill-card-placeholder.jpg';
 import CardMedia2 from '../assets/skill-card-placeholder2.jpg';
 import CardMedia3 from '../assets/skill-card-placeholder3.jpg';
-import { useProfile } from '../auth/ProfileContext';
+import PersistentNavBar from '../components/UI components/navbar/PersistentNavBar.tsx';
 
 const DashboardPage: React.FC = () => {
-    const { logout, showNotification } = useAuth();
-    const { profile } = useProfile();
-    const [loading, setLoading] = useState(false);
-
-    const handleLogout = () => {
-        logout();
-    };
-
-    if (loading) {
-        return (
-            <div style={{ textAlign: 'center', padding: '50px' }}>
-                Loading dashboard...
-            </div>
-        );
-    }
 
     return (
         <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
+            <PersistentNavBar />
             {/* Header */}
             <div style={{
                 display: 'flex',
@@ -41,74 +26,6 @@ const DashboardPage: React.FC = () => {
                         {/* Welcome back{profile?.displayName ? `, ${profile.displayName}` : ''}! */}
                     </p>
                 </div>
-                <button
-                    onClick={handleLogout}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#6c757d',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Logout
-                </button>
-            </div>
-
-            {/* Profile Section */}
-            <div style={{
-                backgroundColor: 'white',
-                padding: '20px',
-                borderRadius: '8px',
-                border: '1px solid #dee2e6',
-                marginBottom: '20px'
-            }}>
-                <h2>Your Profile</h2>
-                {profile ? (
-                    <div>
-                        <p><strong>Display Name:</strong> {profile.displayName || 'Not set'}</p>
-                        <p><strong>Email:</strong> {profile?.email}</p>
-                        <p><strong>Bio:</strong> {profile.bio || 'Not set'}</p>
-                        <p><strong>Location:</strong> {profile.city && profile.country
-                            ? `${profile.city}, ${profile.country}`
-                            : profile.city || profile.country || 'Not set'}</p>
-                        <p><strong>Skills:</strong> {profile.skills && profile.skills.length > 0
-                            ? profile.skills.join(', ')
-                            : 'Not set'}</p>
-
-                        <button
-                            style={{
-                                marginTop: '15px',
-                                padding: '8px 16px',
-                                backgroundColor: '#007bff',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Edit Profile
-                        </button>
-                    </div>
-                ) : (
-                    <div>
-                        <p>No profile found.</p>
-                        <button
-                            onClick={() => window.location.href = '/onboarding'}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: '#28a745',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Create Profile
-                        </button>
-                    </div>
-                )}
             </div>
 
             {/* Quick Actions */}
