@@ -27,7 +27,8 @@ const Notification: React.FC = () => {
             borderRadius: '8px',
             color: 'white',
             fontWeight: 'bold',
-            zIndex: 1000,
+            // Ensure the notification appears above the MUI AppBar/menus
+            zIndex: 2000,
             minWidth: '300px',
             cursor: 'pointer'
         };
