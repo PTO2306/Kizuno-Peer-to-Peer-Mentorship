@@ -29,174 +29,175 @@ import SearchBox from './SearchBox';
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-open?: boolean;
+  open?: boolean;
 }>(({ theme }) => ({
-flexGrow: 1,
-padding: theme.spacing(3),
-transition: theme.transitions.create('margin', {
-easing: theme.transitions.easing.sharp,
-duration: theme.transitions.duration.leavingScreen,
-}),
-marginLeft: `-${drawerWidth}px`,
-variants: [
-{
-    props: ({ open }) => open,
-    style: {
-    transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginLeft: 0,
+  flexGrow: 1,
+  padding: theme.spacing(3),
+  transition: theme.transitions.create('margin', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  marginLeft: `-${drawerWidth}px`,
+  variants: [
+    {
+      props: ({ open }) => open,
+      style: {
+        transition: theme.transitions.create('margin', {
+          easing: theme.transitions.easing.easeOut,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+        marginLeft: 0,
+      },
     },
-},
-],
+  ],
 }));
 
 interface AppBarProps extends MuiAppBarProps {
-open?: boolean;
+  open?: boolean;
 }
 
 const AppBar = styled(MuiAppBar, {
-shouldForwardProp: (prop) => prop !== 'open',
+  shouldForwardProp: (prop) => prop !== 'open',
 })<AppBarProps>(({ theme }) => ({
-transition: theme.transitions.create(['margin', 'width'], {
-easing: theme.transitions.easing.sharp,
-duration: theme.transitions.duration.leavingScreen,
-}),
-variants: [
-{
-    props: ({ open }) => open,
-    style: {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-    }),
+  transition: theme.transitions.create(['margin', 'width'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  variants: [
+    {
+      props: ({ open }) => open,
+      style: {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: `${drawerWidth}px`,
+        transition: theme.transitions.create(['margin', 'width'], {
+          easing: theme.transitions.easing.easeOut,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+      },
     },
-},
-],
+  ],
 }));
 
 const DrawerHeader = styled('div')(({ theme }) => ({
-display: 'flex',
-alignItems: 'center',
-padding: theme.spacing(0, 1),
-// necessary for content to be below app bar
-...theme.mixins.toolbar,
-justifyContent: 'flex-end',
+  display: 'flex',
+  alignItems: 'center',
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+  justifyContent: 'flex-end',
 }));
 
 // COMPONENT
 
 const PersistentNavBar: React.FC = () => {
-const { profile } = useProfile();
-const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const { profile } = useProfile();
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
 
-const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
-};
+  };
 
-const handleCloseUserMenu = () => {
+  const handleCloseUserMenu = () => {
     setAnchorElUser(null);
-};
+  };
 
-const theme = useTheme();
-const [open, setOpen] = React.useState(false);
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(false);
 
-const handleDrawerOpen = () => {
-setOpen(true);
-};
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
 
-const handleDrawerClose = () => {
-setOpen(false);
-};
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
 
-return (
-<Box sx={{ display: 'flex' }}>
-    <CssBaseline />
-    <AppBar position="fixed" open={open}>
-    <Toolbar>
-        <IconButton
-        color="inherit"
-        aria-label="open drawer"
-        onClick={handleDrawerOpen}
-        edge="start"
-        sx={[
-            {
-            mr: 2,
-            },
-            open && { display: 'none' },
-        ]}
-        >
-        <MenuIcon />
-        </IconButton>
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
-        Skill Jam
-        </Typography>
-        <SearchBox />
-        <Tooltip title="Open settings">
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar position="fixed" open={open}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={[
+              {
+                mr: 2,
+              },
+              open && { display: 'none' },
+            ]}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
+            Skill Jam
+          </Typography>
+          <SearchBox />
+          <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ ml: 2 }}>
-                <Avatar alt="User picture" src={profile?.profilePictureUrl || undefined } />
+              <Avatar alt="User picture" src={apiUrl + profile?.profilePictureUrl || undefined} />
             </IconButton>
-        </Tooltip>
-        <Menu
+          </Tooltip>
+          <Menu
             sx={{ mt: '45px' }}
             id="menu-appbar"
             anchorEl={anchorElUser}
             anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+              vertical: 'top',
+              horizontal: 'right',
             }}
             keepMounted
             transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+              vertical: 'top',
+              horizontal: 'right',
             }}
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
-        >
+          >
             <UserMenuItems />
-        </Menu>
-    </Toolbar>
-    </AppBar>
-    <Drawer
-    sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-        width: drawerWidth,
-        boxSizing: 'border-box',
-        },
-    }}
-    variant="persistent"
-    anchor="left"
-    open={open}
-    >
-    <DrawerHeader>
-        <IconButton onClick={handleDrawerClose}>
-        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-        </IconButton>
-    </DrawerHeader>
-    <List>
-        {['Upcoming sessions', 'Leaderboard' ].map((text, index) => (
-        <ListItem key={text} disablePadding>
-            <ListItemButton>
-            <ListItemIcon>
-                {index % 2 === 0 ? <CalendarMonthIcon /> : <LeaderboardIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-            </ListItemButton>
-        </ListItem>
-        ))}
-    </List>
-    </Drawer>
-    <Main open={open}>
-    <DrawerHeader />
-    </Main>
-</Box>
-);
+          </Menu>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+        variant="persistent"
+        anchor="left"
+        open={open}
+      >
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </IconButton>
+        </DrawerHeader>
+        <List>
+          {['Upcoming sessions', 'Leaderboard'].map((text, index) => (
+            <ListItem key={text} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  {index % 2 === 0 ? <CalendarMonthIcon /> : <LeaderboardIcon />}
+                </ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+      <Main open={open}>
+        <DrawerHeader />
+      </Main>
+    </Box>
+  );
 }
 
 export default PersistentNavBar;  
