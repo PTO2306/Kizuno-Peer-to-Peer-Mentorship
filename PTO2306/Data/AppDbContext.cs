@@ -10,6 +10,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
    public DbSet<UserProfile> UserProfiles { get; set; }
    public DbSet<UserSkill> UserSkills { get; set; }
    public DbSet<SkillModel> Skills { get; set; }
+   public DbSet<TagModel> Tags { get; set; }
+   public DbSet<ListingModel> Listings { get; set; }
+   public DbSet<ListingTags> ListingTags { get; set; }
 
    protected override void OnModelCreating(ModelBuilder builder)
    {
@@ -38,6 +41,26 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
            .HasOne(us => us.Skill)
            .WithMany()
            .HasForeignKey(us => us.SkillId);
+       
+       builder.Entity<SkillModel>()
+           .HasIndex(t => t.Name)
+           .IsUnique();
+       
+       builder.Entity<ListingTags>()
+           .HasKey(lt => new { lt.ListingId, lt.TagId });
 
+       builder.Entity<ListingTags>()
+           .HasOne(lt => lt.Listing)
+           .WithMany(l => l.ListingTags)
+           .HasForeignKey(lt => lt.ListingId);
+
+       builder.Entity<ListingTags>()
+           .HasOne(lt => lt.Tag)
+           .WithMany()
+           .HasForeignKey(lt => lt.TagId);
+
+       builder.Entity<TagModel>()
+           .HasIndex(t => t.Name)
+           .IsUnique();
    }
 }

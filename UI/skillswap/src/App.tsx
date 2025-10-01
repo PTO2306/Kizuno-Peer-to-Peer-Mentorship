@@ -1,4 +1,4 @@
-import { Routes, Route, BrowserRouter } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router";
 import { AuthProvider } from "./auth/AuthContext";
 import AuthGuard from "./auth/AuthGuard";
 import Notification from "./components/Notification";
