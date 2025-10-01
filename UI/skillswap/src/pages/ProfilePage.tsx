@@ -33,7 +33,7 @@ const ProfilePage: React.FC = () => {
     setValue,
     getValues,
     watch,
-    reset,
+    // reset,
     formState: { errors, isDirty, isValid },
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -51,23 +51,23 @@ const ProfilePage: React.FC = () => {
   const profilePicture = watch("profilePicture");
 
   // Load existing profile data
-  useEffect(() => {
-    if (profile) {
-      reset({
-        displayName: profile.displayName || "",
-        bio: profile.bio || "",
-        city: profile.city || "",
-        country: profile.country || "",
-        skills: profile.skills || [],
-        profilePicture: undefined
-      });
+  // useEffect(() => {
+  //   if (profile) {
+  //     reset({
+  //       displayName: profile.displayName || "",
+  //       bio: profile.bio || "",
+  //       city: profile.city || "",
+  //       country: profile.country || "",
+  //       skills: profile.skills || [],
+  //       profilePicture: undefined
+  //     });
 
-      // Set existing profile picture preview if available
-      if (profile.profilePictureUrl) {
-        setProfilePicPreview(profile.profilePictureUrl);
-      }
-    }
-  }, [profile, reset]);
+  //     // Set existing profile picture preview if available
+  //     if (profile.profilePictureUrl) {
+  //       setProfilePicPreview(profile.profilePictureUrl);
+  //     }
+  //   }
+  // }, [profile, reset]);
 
   useEffect(() => {
     if (profilePicture) {

@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 import PersistentNavBar from './UI components/navbar/PersistentNavBar';
 
 /** Keeps navbar and only content below the navbar changes when moving through pages */
