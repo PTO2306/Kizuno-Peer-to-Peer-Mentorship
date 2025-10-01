@@ -7,15 +7,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useProfile } from '../auth/ProfileContext';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Delete from '@mui/icons-material/Delete';
+import type { SkillModel } from '../models/userModels';
 
 const steps = ['Tell us about yourself', 'Skills and Interests'];
+
+const skillSchema = z.object({
+  name: z.string().min(1),
+  isTeaching: z.boolean(),
+});
 
 const profileSchema = z.object({
   displayName: z.string().min(1, "Display name is required").max(50),
   bio: z.string().max(200).optional(),
   city: z.string().max(50).optional(),
   country: z.string().max(50).optional(),
-  skills: z.array(z.string()).optional(),
+  skills: z.array(skillSchema).optional(),
   profilePicture: z.instanceof(File).optional(),
 });
 
@@ -27,6 +33,7 @@ const OnboardingPage: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [skillInput, setSkillInput] = useState("");
+  const [isTeaching, setIsTeaching] = useState(true);
   const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
 
   const {
@@ -96,18 +103,25 @@ const OnboardingPage: React.FC = () => {
   const handleAddSkill = () => {
     if (skillInput.trim()) {
       const currentSkills = getValues("skills") ?? [];
-      if (!currentSkills.includes(skillInput.trim())) {
-        setValue("skills", [...currentSkills, skillInput.trim()], { shouldDirty: true });
+      const skillName = skillInput.trim();
+      if (!currentSkills.some(s => s.name === skillName && s.isTeaching === isTeaching)) {
+        setValue(
+          "skills",
+          [...currentSkills, { name: skillName, isTeaching }],
+          { shouldDirty: true }
+        );
       }
       setSkillInput("");
     }
   };
 
-  const handleRemoveSkill = (skill: string) => {
+  const handleRemoveSkill = (skill: SkillModel) => {
     const currentSkills = getValues("skills") ?? [];
     setValue(
       "skills",
-      currentSkills.filter((s) => s !== skill),
+      currentSkills.filter(
+        (s) => !(s.name === skill.name && s.isTeaching === skill.isTeaching)
+      ),
       { shouldDirty: true }
     );
   };
@@ -123,7 +137,7 @@ const OnboardingPage: React.FC = () => {
       if (data.bio) formData.append('bio', data.bio);
       if (data.city) formData.append('city', data.city);
       if (data.country) formData.append('country', data.country);
-      if (data.skills) formData.append('skills', JSON.stringify(data.skills));
+      if (data.skills) formData.append('skillsJson', JSON.stringify(data.skills));
 
       if (data.profilePicture) {
         formData.append('profilePicture', data.profilePicture);
@@ -285,9 +299,9 @@ const OnboardingPage: React.FC = () => {
           {/* Step 2: Skills */}
           {activeStep === 1 && (
             <Box>
-              <Box className="flex gap-2">
+              <Box className="flex gap-2 mb-2 items-center">
                 <TextField
-                  label="Add Skill"
+                  label={`Add ${isTeaching ? "Skills You're Offering To Teach" : "Skills You're Interested In Learning"}`}
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   fullWidth
@@ -302,18 +316,34 @@ const OnboardingPage: React.FC = () => {
                 </Button>
               </Box>
 
+              <Box className="flex gap-2 mb-4">
+                <Button
+                  variant={isTeaching ? "contained" : "outlined"}
+                  onClick={() => setIsTeaching(true)}
+                >
+                  Teaching
+                </Button>
+                <Button
+                  variant={!isTeaching ? "contained" : "outlined"}
+                  onClick={() => setIsTeaching(false)}
+                >
+                  Learning
+                </Button>
+              </Box>
+
               <Box className="flex flex-wrap gap-2 mt-3">
                 {getValues("skills")?.map((skill) => (
                   <Chip
-                    key={skill}
-                    label={skill}
+                    key={`${skill.name}-${skill.isTeaching}`}
+                    label={`${skill.name} (${skill.isTeaching ? "Teaching" : "Learning"})`}
                     onDelete={() => handleRemoveSkill(skill)}
-                    color="secondary"
+                    color={skill.isTeaching ? "primary" : "secondary"}
                   />
                 ))}
               </Box>
             </Box>
           )}
+
 
         </form>
         {/* Navigation buttons */}

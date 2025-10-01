@@ -3,11 +3,16 @@ export interface LoginModel {
   password: string;
 }
 
+export interface SkillModel {
+  name: string;
+  isTeaching: boolean;
+}
+
 export interface ProfileModel {
   displayName: string;
   bio?: string;
   city?: string;
   country?: string;
-  skills?: string[];
+  skills?: SkillModel[];
   profilePictureUrl?: string;
 }

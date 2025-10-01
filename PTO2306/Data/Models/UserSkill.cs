@@ -7,5 +7,6 @@ public class UserSkill
 
     public int SkillId { get; set; }
     public SkillModel Skill { get; set; } = null!;
+    public bool IsTeaching { get; set; } = false;
 
 }

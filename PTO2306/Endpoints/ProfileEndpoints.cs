@@ -41,7 +41,11 @@ public static class ProfileEndpoints
             Bio = p.Bio,
             City = p.City,
             Country = p.Country,
-            Skills = p.Skills.Select(us => us.Skill.Name).ToList(),
+         Skills = p.Skills.Select(s => new SkillDto
+         {
+            Name = s.Skill.Name,
+            IsTeaching = s.IsTeaching
+         }).ToList(),
             ProfilePictureUrl = p.ProfilePictureUrl,
          })
          .FirstOrDefaultAsync();
@@ -81,16 +85,24 @@ public static class ProfileEndpoints
          Skills = new List<UserSkill>(),
       };
 
-      if (!string.IsNullOrEmpty(form.Skills))
+      if (!string.IsNullOrEmpty(form.SkillsJson))
       {
-         var skillNames = JsonSerializer.Deserialize<List<string>>(form.Skills);
-         if (skillNames != null)
+         var skillDtos = JsonSerializer.Deserialize<List<SkillDto>>(form.SkillsJson, new JsonSerializerOptions
          {
-            foreach (var skillName in skillNames)
+            PropertyNameCaseInsensitive = true
+         });
+         if (skillDtos != null)
+         {
+            foreach (var skillDto in skillDtos)
             {
-               var skill = await db.Skills.FirstOrDefaultAsync(s => s.Name == skillName)
-                           ?? new SkillModel { Name = skillName };
-               profile.Skills.Add(new UserSkill { Skill = skill });
+               var skill = await db.Skills.FirstOrDefaultAsync(s => s.Name == skillDto.Name)
+                           ?? new SkillModel { Name = skillDto.Name };
+
+               profile.Skills.Add(new UserSkill
+               {
+                  Skill = skill,
+                  IsTeaching = skillDto.IsTeaching
+               });
             }
          }
       }
@@ -119,7 +131,11 @@ public static class ProfileEndpoints
          Bio = profile.Bio,
          City = profile.City,
          Country = profile.Country,
-         Skills = profile.Skills.Select(s => s.Skill.Name).ToList(),
+         Skills = profile.Skills.Select(s => new SkillDto
+         {
+            Name = s.Skill.Name,
+            IsTeaching = s.IsTeaching
+         }).ToList(),
          ProfilePictureUrl = profile.ProfilePictureUrl
       });
 
@@ -155,16 +171,24 @@ public static class ProfileEndpoints
       profile.UpdatedAt = DateTime.UtcNow;
 
       profile.Skills.Clear();
-      if (!string.IsNullOrEmpty(form.Skills))
+      if (!string.IsNullOrEmpty(form.SkillsJson))
       {
-         var skillNames = JsonSerializer.Deserialize<List<string>>(form.Skills);
-         if (skillNames != null)
+         var skillDtos = JsonSerializer.Deserialize<List<SkillDto>>(form.SkillsJson, new JsonSerializerOptions
          {
-            foreach (var skillName in skillNames)
+            PropertyNameCaseInsensitive = true
+         });
+         if (skillDtos != null)
+         {
+            foreach (var skillDto in skillDtos)
             {
-               var skill = await db.Skills.FirstOrDefaultAsync(s => s.Name == skillName)
-                           ?? new SkillModel { Name = skillName };
-               profile.Skills.Add(new UserSkill { UserProfile = profile, Skill = skill });
+               var skill = await db.Skills.FirstOrDefaultAsync(s => s.Name == skillDto.Name)
+                           ?? new SkillModel { Name = skillDto.Name };
+
+               profile.Skills.Add(new UserSkill
+               {
+                  Skill = skill,
+                  IsTeaching = skillDto.IsTeaching
+               });
             }
          }
       }
@@ -199,7 +223,11 @@ public static class ProfileEndpoints
          Bio = profile.Bio,
          City = profile.City,
          Country = profile.Country,
-         Skills = profile.Skills.Select(s => s.Skill.Name).ToList(),
+         Skills = profile.Skills.Select(s => new SkillDto
+         {
+            Name = s.Skill.Name,
+            IsTeaching = s.IsTeaching
+         }).ToList(),
          ProfilePictureUrl = profile.ProfilePictureUrl
       });
 

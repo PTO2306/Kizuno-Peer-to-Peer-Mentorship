@@ -1,29 +1,15 @@
-import React, { useState } from 'react';
-import { useAuth } from '../auth/AuthContext';
+import React  from 'react';
 import ClassCard from '../components/UI components/card/ClassCard';
 import CardMedia from '../assets/skill-card-placeholder.jpg';
 import CardMedia2 from '../assets/skill-card-placeholder2.jpg';
 import CardMedia3 from '../assets/skill-card-placeholder3.jpg';
+import PersistentNavBar from '../components/UI components/navbar/PersistentNavBar.tsx';
 
 const DashboardPage: React.FC = () => {
-    const { logout, showNotification } = useAuth();
-    const [loading, setLoading] = useState(false);
-
-    const handleLogout = () => {
-        logout();
-    };
-
-    if (loading) {
-        return (
-            <div style={{ textAlign: 'center', padding: '50px' }}>
-                Loading dashboard...
-            </div>
-        );
-    }
 
     return (
         <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-            <NavBar />
+            <PersistentNavBar />
             {/* Header */}
             <div style={{
                 display: 'flex',
