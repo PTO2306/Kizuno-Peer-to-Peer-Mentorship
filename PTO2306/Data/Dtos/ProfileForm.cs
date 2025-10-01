@@ -6,6 +6,7 @@ public class ProfileForm
     public string? Bio { get; set; }
     public string? City { get; set; }
     public string? Country { get; set; }
-    public List<SkillDto>? Skills { get; set; } 
+    
+    public string? SkillsJson { get; set; }
     public IFormFile? ProfilePicture { get; set; }
 }
