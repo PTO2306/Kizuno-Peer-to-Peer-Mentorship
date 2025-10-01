@@ -14,9 +14,12 @@ const UserMenuItems: React.FC = () => {
       onClick: () => navigate('/profile')
     },
     {
+      label: 'Account'
+    },
+    {
       label: 'Logout',
       onClick: () => logout()
-    }
+    },
   ]
 
   return (
