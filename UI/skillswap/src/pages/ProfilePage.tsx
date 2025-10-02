@@ -133,14 +133,15 @@ const ProfileEditPage: React.FC = () => {
     }
   };
 
+  const skills = watch("skills") ?? [];
+
   const handleRemoveSkill = (skill: SkillModel) => {
-    const currentSkills = getValues("skills") ?? [];
     setValue(
       "skills",
-      currentSkills.filter(
+      skills.filter(
         (s) => !(s.name === skill.name && s.isTeaching === skill.isTeaching)
       ),
-      { shouldDirty: true }
+      { shouldDirty: true, shouldValidate: true }
     );
   };
 
