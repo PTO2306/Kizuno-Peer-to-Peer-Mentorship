@@ -89,7 +89,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 // COMPONENT
 
-const PersistentNavBar: React.FC = () => {
+const NavBar: React.FC = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { profile } = useProfile();
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -200,4 +200,4 @@ const PersistentNavBar: React.FC = () => {
   );
 }
 
-export default PersistentNavBar;  
+export default NavBar;  

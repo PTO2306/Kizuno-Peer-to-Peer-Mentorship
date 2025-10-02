@@ -47,11 +47,12 @@ const LoginPage: React.FC = () => {
       if (result.success) {
         navigate('/dashboard');
       }
-    } catch (err) {
+    } catch (err: any) {
       setError('root', {
         type: 'manual',
         message: 'An unexpected error occurred. Please try again.',
       });
+      console.error(err);
     }
   };
 

@@ -1,48 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useContext, createContext, useEffect } from 'react';
-import httpClient, { setAuthRefreshFunction, setLogoutFunction } from './httpClient';
+import httpClient, {
+  setAuthRefreshFunction,
+  setLogoutFunction,
+} from './httpClient';
 import type { LoginModel } from '../models/userModels';
+import { useNotification } from '../components/Notification';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
-  notification: {
-    message: string;
-    type: 'success' | 'error' | 'info';
-    show: boolean;
-  } | null;
   checkAuthStatus: () => Promise<void>;
   login: (credentials: LoginModel) => Promise<{ success: boolean }>;
   logout: () => Promise<void>;
   register: (credentials: LoginModel) => Promise<{ success: boolean }>;
   refreshToken: () => Promise<boolean>;
-  showNotification: (message: string, type: 'success' | 'error' | 'info') => void;
-  hideNotification: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { showNotification } = useNotification();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [notification, setNotification] = useState<{
-    message: string;
-    type: 'success' | 'error' | 'info';
-    show: boolean;
-  } | null>(null);
-
-  const showNotification = (message: string, type: 'success' | 'error' | 'info') => {
-    setNotification({ message, type, show: true });
-    setTimeout(() => {
-      setNotification(null);
-    }, 3000);
-  };
-
-  const hideNotification = () => {
-    setNotification(null);
-  };
 
   const checkAuthStatus = async () => {
     setLoading(true);
@@ -90,7 +74,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(errorMessage);
       setIsAuthenticated(false);
       showNotification(
-        error.response?.data?.message || 'Login failed. Please check your credentials.',
+        error.response?.data?.message ||
+          'Login failed. Please check your credentials.',
         'error'
       );
       return { success: false };
@@ -105,7 +90,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await httpClient.get('/user/logout');
     } catch (error: any) {
-      console.error('Logout request failed, but continuing with local logout', error.message);
+      console.error(
+        'Logout request failed, but continuing with local logout',
+        error.message
+      );
     } finally {
       setIsAuthenticated(false);
       setError(null);
@@ -134,7 +122,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (response.status === 200) {
-        showNotification('Account created! Check your email to verify.', 'success');
+        showNotification(
+          'Account created! Check your email to verify.',
+          'success'
+        );
         return { success: true };
       }
     } catch (error: any) {
@@ -173,14 +164,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated,
     loading,
     error,
-    notification,
     checkAuthStatus,
     login,
     logout,
     register,
     refreshToken,
-    showNotification,
-    hideNotification,
   };
 
   return React.createElement(AuthContext.Provider, { value }, children);
