@@ -1,56 +1,68 @@
-import { Routes, Route, BrowserRouter } from "react-router";
-import { AuthProvider } from "./auth/AuthContext";
-import AuthGuard from "./auth/AuthGuard";
-import Notification from "./components/Notification";
-
-// Layout
-import Layout from './components/Layout';
-
-// Pages
-import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import OnboardingPage from "./pages/OnboardingPage";
-import DashboardPage from "./pages/DashboardPage";
-import { ProfileProvider } from "./auth/ProfileContext";
-import ProfilePage from "./pages/ProfilePage";
+import { useLocation } from 'react-router';
+import { NotificationProvider } from './components/NotificationContext';
+import { AuthProvider } from './auth/AuthContext';
+import { ProfileProvider } from './auth/ProfileContext';
+import { BrowserRouter, Route, Routes } from 'react-router';
+import NavBar from './components/UI components/navbar/NavBar';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import AuthGuard from './auth/AuthGuard';
+import DashboardPage from './pages/DashboardPage';
+import ProfilePage from './pages/ProfilePage';
+import OnboardingPage from './pages/OnboardingPage';
 
 function App() {
   return (
-    <AuthProvider>
-      <ProfileProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+    <NotificationProvider>
+      <AuthProvider>
+        <ProfileProvider>
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        </ProfileProvider>
+      </AuthProvider>
+    </NotificationProvider>
+  );
+}
 
-            {/* Protected routes with layout */}
-            <Route
-              element={
-                <AuthGuard requireProfile={true}>
-                  <Layout />
-                </AuthGuard>
-              }
-            >
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-            </Route>
+function AppContent() {
+  const location = useLocation();
+  const navbarRoutes = ['/dashboard', '/profile'];
+  const showNavbar = navbarRoutes.includes(location.pathname);
 
-            <Route
-              path="/onboarding"
-              element={
-                <AuthGuard>
-                  <OnboardingPage />
-                </AuthGuard>
-              }
-            />
-          </Routes>
-          <Notification />
-        </BrowserRouter>
-      </ProfileProvider>
-    </AuthProvider>
+  return (
+    <>
+      {showNavbar && <NavBar />}
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        {/* Protected Routes */}
+        <Route path="/dashboard" element={
+          <AuthGuard requireProfile={true}>
+            <DashboardPage />
+          </AuthGuard>
+        } />
+
+        <Route path="/profile" element={
+          <AuthGuard requireProfile={true}>
+            <ProfilePage />
+          </AuthGuard>
+        } />
+
+        <Route
+          path="/onboarding"
+          element={
+            <AuthGuard>
+              <OnboardingPage />
+            </AuthGuard>
+          }
+        />
+      </Routes>
+    </>
   );
 }
 
