@@ -8,6 +8,7 @@ import { useProfile } from '../auth/ProfileContext';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Delete from '@mui/icons-material/Delete';
 import type { SkillModel } from '../models/userModels';
+import { useNotification } from '../components/Notification';
 
 const steps = ['Tell us about yourself', 'Skills and Interests'];
 
@@ -28,7 +29,8 @@ const profileSchema = z.object({
 type ProfileForm = z.infer<typeof profileSchema>;
 
 const OnboardingPage: React.FC = () => {
-  const { createProfile, showNotification, profile } = useProfile();
+  const { showNotification } = useNotification();
+  const { createProfile, profile } = useProfile();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
