@@ -213,6 +213,16 @@ public static class ProfileEndpoints
          await form.ProfilePicture.CopyToAsync(stream);
 
          profile.ProfilePictureUrl = $"/uploads/profiles/{fileName}";
+      } else if (!string.IsNullOrEmpty(form.RemoveProfilePicture) && form.RemoveProfilePicture == "true")
+      {
+         if (!string.IsNullOrEmpty(profile.ProfilePictureUrl))
+         {
+            var oldPath = Path.Combine(env.WebRootPath ?? "wwwroot", profile.ProfilePictureUrl.TrimStart('/'));
+            if (File.Exists(oldPath))
+               File.Delete(oldPath);
+      
+            profile.ProfilePictureUrl = null; 
+         }
       }
 
       await db.SaveChangesAsync();

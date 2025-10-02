@@ -8,24 +8,35 @@ import { useProfile } from '../auth/ProfileContext';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Delete from '@mui/icons-material/Delete';
 import ArrowBack from '@mui/icons-material/ArrowBack';
+import type { SkillModel } from '../models/userModels';
+import { useNotification } from '../components/Notification';
+
+const skillSchema = z.object({
+  name: z.string().min(1),
+  isTeaching: z.boolean(),
+});
 
 const profileSchema = z.object({
   displayName: z.string().min(1, "Display name is required").max(50),
   bio: z.string().max(200).optional(),
   city: z.string().max(50).optional(),
   country: z.string().max(50).optional(),
-  skills: z.array(z.string()).optional(),
+  skills: z.array(skillSchema).optional(),
   profilePicture: z.instanceof(File).optional(),
 });
 
 type ProfileForm = z.infer<typeof profileSchema>;
 
-const ProfilePage: React.FC = () => {
-  const { profile, updateProfile, showNotification } = useProfile();
+const ProfileEditPage: React.FC = () => {
+  const { showNotification } = useNotification();
+  const { profile, updateProfile } = useProfile();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [skillInput, setSkillInput] = useState("");
+  const [isTeaching, setIsTeaching] = useState(true);
   const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
+  const [removeProfilePicture, setRemoveProfilePicture] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const {
     control,
@@ -33,7 +44,7 @@ const ProfilePage: React.FC = () => {
     setValue,
     getValues,
     watch,
-    // reset,
+    reset,
     formState: { errors, isDirty, isValid },
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -51,23 +62,24 @@ const ProfilePage: React.FC = () => {
   const profilePicture = watch("profilePicture");
 
   // Load existing profile data
-  // useEffect(() => {
-  //   if (profile) {
-  //     reset({
-  //       displayName: profile.displayName || "",
-  //       bio: profile.bio || "",
-  //       city: profile.city || "",
-  //       country: profile.country || "",
-  //       skills: profile.skills || [],
-  //       profilePicture: undefined
-  //     });
+  useEffect(() => {
+    if (profile) {
+      reset({
+        displayName: profile.displayName || "",
+        bio: profile.bio || "",
+        city: profile.city || "",
+        country: profile.country || "",
+        skills: profile.skills || [],
+        profilePicture: undefined
+      });
 
-  //     // Set existing profile picture preview if available
-  //     if (profile.profilePictureUrl) {
-  //       setProfilePicPreview(profile.profilePictureUrl);
-  //     }
-  //   }
-  // }, [profile, reset]);
+      // Set existing profile picture preview if available
+      if (profile.profilePictureUrl) {
+        setProfilePicPreview(apiUrl + profile.profilePictureUrl);
+      }
+      setRemoveProfilePicture(false);
+    }
+  }, [profile, reset, apiUrl]);
 
   useEffect(() => {
     if (profilePicture) {
@@ -76,6 +88,7 @@ const ProfilePage: React.FC = () => {
         setProfilePicPreview(e.target?.result as string);
       };
       reader.readAsDataURL(profilePicture);
+      setRemoveProfilePicture(true);
     }
   }, [profilePicture]);
 
@@ -93,31 +106,40 @@ const ProfilePage: React.FC = () => {
       }
 
       onChange(file);
+      setRemoveProfilePicture(false);
     } else {
       onChange(undefined);
     }
   };
 
   const handleRemoveProfilePicture = () => {
-    setValue("profilePicture", undefined, { shouldDirty: true });
-    setProfilePicPreview(profile?.profilePictureUrl || null);
+    setValue("profilePicture", undefined, { shouldValidate: true });
+    setProfilePicPreview(null);
+    setRemoveProfilePicture(true);
   };
 
   const handleAddSkill = () => {
     if (skillInput.trim()) {
       const currentSkills = getValues("skills") ?? [];
-      if (!currentSkills.includes(skillInput.trim())) {
-        setValue("skills", [...currentSkills, skillInput.trim()], { shouldDirty: true });
+      const skillName = skillInput.trim();
+      if (!currentSkills.some(s => s.name === skillName && s.isTeaching === isTeaching)) {
+        setValue(
+          "skills",
+          [...currentSkills, { name: skillName, isTeaching }],
+          { shouldDirty: true }
+        );
       }
       setSkillInput("");
     }
   };
 
-  const handleRemoveSkill = (skill: string) => {
+  const handleRemoveSkill = (skill: SkillModel) => {
     const currentSkills = getValues("skills") ?? [];
     setValue(
       "skills",
-      currentSkills.filter((s) => s !== skill),
+      currentSkills.filter(
+        (s) => !(s.name === skill.name && s.isTeaching === skill.isTeaching)
+      ),
       { shouldDirty: true }
     );
   };
@@ -132,17 +154,18 @@ const ProfilePage: React.FC = () => {
       if (data.bio) formData.append('bio', data.bio);
       if (data.city) formData.append('city', data.city);
       if (data.country) formData.append('country', data.country);
-      if (data.skills) formData.append('skills', JSON.stringify(data.skills));
+      if (data.skills) formData.append('skillsJson', JSON.stringify(data.skills));
 
       if (data.profilePicture) {
         formData.append('profilePicture', data.profilePicture);
+      } else if (removeProfilePicture) {
+        formData.append('removeProfilePicture', 'true');
       }
 
       const response = await updateProfile(formData);
 
       if (response.success) {
         showNotification('Profile updated successfully!', 'success');
-        navigate('/dashboard');
       }
 
     } catch (error: any) {
@@ -156,7 +179,13 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate('/dashboard');
+    reset();
+    setRemoveProfilePicture(false);
+    if (profile?.profilePictureUrl) {
+      setProfilePicPreview(apiUrl + profile.profilePictureUrl);
+    } else {
+      setProfilePicPreview(null);
+    }
   };
 
   if (!profile) {
@@ -166,6 +195,9 @@ const ProfilePage: React.FC = () => {
       </Box>
     );
   }
+
+  const teachingSkills = getValues("skills")?.filter(s => s.isTeaching) ?? [];
+  const learningSkills = getValues("skills")?.filter(s => !s.isTeaching) ?? [];
 
   return (
     <Box className="flex flex-col items-center min-h-screen py-10 px-4">
@@ -192,7 +224,7 @@ const ProfilePage: React.FC = () => {
               </Typography>
 
               <Avatar
-                src={profilePicPreview || undefined}
+                src={profilePicPreview ? profilePicPreview : undefined}
                 sx={{ width: 120, height: 120, mb: 3 }}
               >
                 {!profilePicPreview && getValues("displayName")?.charAt(0)?.toUpperCase()}
@@ -309,9 +341,9 @@ const ProfilePage: React.FC = () => {
                 Skills & Interests
               </Typography>
 
-              <Box className="flex gap-2">
+              <Box className="flex gap-2 mb-2 items-center">
                 <TextField
-                  label="Add Skill"
+                  label={`Add ${isTeaching ? "Skills You're Offering To Teach" : "Skills You're Interested In Learning"}`}
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyPress={(e) => {
@@ -334,22 +366,67 @@ const ProfilePage: React.FC = () => {
                 </Button>
               </Box>
 
-              <Box className="flex flex-wrap gap-2 min-h-[40px]">
-                {getValues("skills")?.length === 0 ? (
-                  <Typography variant="body2" color="textSecondary" className="italic py-2">
-                    No skills added yet. Add some skills to showcase your expertise!
-                  </Typography>
-                ) : (
-                  getValues("skills")?.map((skill) => (
-                    <Chip
-                      key={skill}
-                      label={skill}
-                      onDelete={() => handleRemoveSkill(skill)}
-                      color="primary"
-                      variant="outlined"
-                    />
-                  ))
-                )}
+              <Box className="flex gap-2 mb-4">
+                <Button
+                  variant={isTeaching ? "contained" : "outlined"}
+                  onClick={() => setIsTeaching(true)}
+                  size="small"
+                >
+                  Teaching
+                </Button>
+                <Button
+                  variant={!isTeaching ? "contained" : "outlined"}
+                  onClick={() => setIsTeaching(false)}
+                  size="small"
+                >
+                  Learning
+                </Button>
+              </Box>
+
+              {/* Teaching Skills */}
+              <Box className="mb-4">
+                <Typography variant="subtitle2" className="mb-2 font-semibold text-primary">
+                  Skills You're Teaching
+                </Typography>
+                <Box className="flex flex-wrap gap-2 min-h-[40px]">
+                  {teachingSkills.length === 0 ? (
+                    <Typography variant="body2" color="textSecondary" className="italic py-2">
+                      No teaching skills added yet
+                    </Typography>
+                  ) : (
+                    teachingSkills.map((skill) => (
+                      <Chip
+                        key={`${skill.name}-${skill.isTeaching}`}
+                        label={skill.name}
+                        onDelete={() => handleRemoveSkill(skill)}
+                        color="primary"
+                      />
+                    ))
+                  )}
+                </Box>
+              </Box>
+
+              {/* Learning Skills */}
+              <Box>
+                <Typography variant="subtitle2" className="mb-2 font-semibold text-secondary">
+                  Skills You're Learning
+                </Typography>
+                <Box className="flex flex-wrap gap-2 min-h-[40px]">
+                  {learningSkills.length === 0 ? (
+                    <Typography variant="body2" color="textSecondary" className="italic py-2">
+                      No learning interests added yet
+                    </Typography>
+                  ) : (
+                    learningSkills.map((skill) => (
+                      <Chip
+                        key={`${skill.name}-${skill.isTeaching}`}
+                        label={skill.name}
+                        onDelete={() => handleRemoveSkill(skill)}
+                        color="secondary"
+                      />
+                    ))
+                  )}
+                </Box>
               </Box>
             </Box>
 
@@ -368,7 +445,7 @@ const ProfilePage: React.FC = () => {
               <Button
                 type="submit"
                 variant="contained"
-                disabled={!isValid || loading || !isDirty}
+                disabled={!isValid || loading || (!isDirty && !removeProfilePicture)}
               >
                 {loading ? <CircularProgress size={24} /> : "Save Changes"}
               </Button>
@@ -380,4 +457,4 @@ const ProfilePage: React.FC = () => {
   );
 };
 
-export default ProfilePage;
+export default ProfileEditPage;
