@@ -14,6 +14,7 @@ import OnboardingPage from "./pages/OnboardingPage";
 import DashboardPage from "./pages/DashboardPage";
 import { ProfileProvider } from "./auth/ProfileContext";
 import ProfilePage from "./pages/ProfilePage";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
             >
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/chat" element={<ChatPage />} />
             </Route>
 
             <Route

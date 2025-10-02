@@ -20,6 +20,10 @@ const UserMenuItems: React.FC = () => {
       label: 'Logout',
       onClick: () => logout()
     },
+    {
+      label: 'Chat',
+      onClick: () => navigate('/chat')
+    }
   ]
 
   return (
