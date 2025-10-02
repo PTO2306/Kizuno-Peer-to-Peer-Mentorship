@@ -1,15 +1,13 @@
-import React  from 'react';
+import React from 'react';
 import ClassCard from '../components/UI components/card/ClassCard';
 import CardMedia from '../assets/skill-card-placeholder.jpg';
 import CardMedia2 from '../assets/skill-card-placeholder2.jpg';
 import CardMedia3 from '../assets/skill-card-placeholder3.jpg';
-import PersistentNavBar from '../components/UI components/navbar/PersistentNavBar.tsx';
 
 const DashboardPage: React.FC = () => {
 
     return (
         <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-            <PersistentNavBar />
             {/* Header */}
             <div style={{
                 display: 'flex',
