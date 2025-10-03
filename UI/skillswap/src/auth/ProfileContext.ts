@@ -4,24 +4,15 @@ import type { ProfileModel } from '../models/userModels';
 import { useAuth } from './AuthContext';
 import httpClient from './httpClient';
 import React from 'react';
+import { useNotification } from '../components/Notification';
 
 interface ProfileContextType {
   profile: ProfileModel | null;
   loading: boolean;
   error: string | null;
-  notification: {
-    message: string;
-    type: 'success' | 'error' | 'info';
-    show: boolean;
-  } | null;
   fetchProfile: () => Promise<void>;
   updateProfile: (profileData: FormData) => Promise<{ success: boolean }>;
   createProfile: (profileData: FormData) => Promise<{ success: boolean }>;
-  showNotification: (
-    message: string,
-    type: 'success' | 'error' | 'info'
-  ) => void;
-  hideNotification: () => void;
   clearProfile: () => void;
 }
 
@@ -30,31 +21,11 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { showNotification } = useNotification();
   const [profile, setProfile] = useState<ProfileModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // make notification a separate context
-  const [notification, setNotification] = useState<{
-    message: string;
-    type: 'success' | 'error' | 'info';
-    show: boolean;
-  } | null>(null);
-
   const { isAuthenticated } = useAuth();
-  const showNotification = (
-    message: string,
-    type: 'success' | 'error' | 'info'
-  ) => {
-    setNotification({ message, type, show: true });
-    setTimeout(() => {
-      setNotification(null);
-    }, 3000);
-  };
-
-  const hideNotification = () => {
-    setNotification(null);
-  };
 
   const clearProfile = () => {
     setProfile(null);
@@ -164,12 +135,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
     profile,
     loading,
     error,
-    notification,
     fetchProfile,
     updateProfile,
     createProfile,
-    showNotification,
-    hideNotification,
     clearProfile,
   };
 

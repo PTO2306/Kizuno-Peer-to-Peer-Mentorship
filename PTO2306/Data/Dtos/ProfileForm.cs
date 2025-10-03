@@ -9,4 +9,5 @@ public class ProfileForm
     
     public string? SkillsJson { get; set; }
     public IFormFile? ProfilePicture { get; set; }
+    public string RemoveProfilePicture { get; set; } = "false";
 }
