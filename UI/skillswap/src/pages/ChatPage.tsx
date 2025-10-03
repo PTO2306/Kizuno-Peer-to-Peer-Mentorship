@@ -1,11 +1,11 @@
-import PersistentNavBar from "../components/UI components/navbar/PersistentNavBar";
+import NavBar from "../components/UI components/navbar/NavBar";
 import ChatContainer from "../components/UI components/chat/ChatContainer";
 
 const ChatPage: React.FC = () => {
 
     return (
         <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-            <PersistentNavBar />
+            <NavBar />
             {/* Header */}
             <div style={{
                 display: 'flex',
