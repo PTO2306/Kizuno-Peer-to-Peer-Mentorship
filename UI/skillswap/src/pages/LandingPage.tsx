@@ -1,92 +1,102 @@
-// pages/LandingPage.tsx
-import React from 'react';
-import Button from '@mui/material/Button'
-import { Link as RouterLink } from 'react-router';
+import { Link } from 'react-router';
+import media1 from '../assets/people-removebg-preview.png';
+import media2 from '../assets/people_talking-removebg-preview.png';
 
 const LandingPage: React.FC = () => {
 return (
-    <div className='min-h-screen flex flex-col'>
+<div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-50 via-white to-purple-50 relative overflow-hidden">
     {/* Hero */}
-    <section className='flex-1 flex flex-col justify-center items-center text-center p-6 bg-gradient-to-b from-indigo-50 to-white'>
-        <div className='mb-3 inline-flex items-center gap-2 rounded-full bg-indigo-100/70 px-3 py-1 text-indigo-800 text-sm'>
-        ✨ Real people. Real sessions.
-        </div>
-        <h1 className='text-4xl md:text-6xl font-extrabold mb-3'>
-        <span className='bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-500 bg-clip-text text-transparent'>
-            Skill Jam
-        </span>
+    <section className="flex-1 flex items-center justify-center px-6 py-20">
+    <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        {/* Text */}
+        <div className="text-center md:text-left">
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-violet-600 to-purple-700 bg-clip-text text-transparent leading-tight">
+            Skill Swap
         </h1>
-        <p className='text-lg md:text-xl text-gray-600 mb-6 max-w-xl leading-relaxed'>
-        Bringing communities together through skills
-        </p>
-        <Button 
-        className='px-6 py-3 rounded-2xl bg-indigo-600 text-white hover:bg-indigo-700 transition'
-        component={RouterLink}
-        to='/login'
-        >
-            Login
-        </Button>
-    </section>
-
-    {/* Problem + Solution + Features */}
-    <section className='py-16 px-6 max-w-5xl mx-auto'>
-        <div className='mb-6 flex items-start gap-3'>
-        <span className='mt-1 h-8 w-1 rounded-full bg-indigo-500/70' />
-        <h2 className='text-2xl md:text-3xl font-extrabold leading-tight'>
-            Tired of swimming through the ocean of online courses{" "}
-            <span className='bg-gradient-to-r from-indigo-500 to-fuchsia-500 bg-clip-text text-transparent'>
-            void of human connection?
-            </span>
+        <span className="px-4 py-2 bg-violet-100 text-violet-700 rounded-full text-sm font-medium">
+            Learn anything, one conversation at a time
+        </span>
+        <h2 className="text-xl md:text-2xl text-slate-600 mt-5 mb-12 leading-relaxed">
+            Peer-to-peer conversation platform to connect with other people who have experience in what you want to talk about
         </h2>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            <Link
+            to="/register"
+            className="px-8 py-4 rounded-lg bg-gradient-to-r from-violet-600 to-purple-700 text-white text-lg font-medium shadow-lg shadow-violet-500/30 transition hover:from-violet-700 hover:to-purple-800 hover:scale-105"
+            >
+            Get started
+            </Link>
+            <Link
+            to="/login"
+            className="px-8 py-4 rounded-lg border-2 border-violet-300 text-violet-700 text-lg font-medium transition hover:border-violet-400 hover:bg-violet-50 hover:scale-105"
+            >
+            Log in
+            </Link>
         </div>
-        <p className='text-gray-600 mb-10 max-w-3xl'>
-        We put community and connection back into learning — real sessions with real people, scheduled and supported.
-        </p>
+        </div>
 
-        <div className='grid md:grid-cols-2 gap-6'>
-        <div className='relative rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-7'>
-            <div className='absolute left-0 top-6 h-8 w-1 rounded-r bg-indigo-500/80' />
-            <div className='mb-2 text-sm uppercase tracking-wide text-indigo-600 flex items-center gap-2'>
-            <span>How it works</span>
-            </div>
-            <h3 className='text-xl font-semibold mb-3'>The Solution</h3>
-            <div className='text-gray-700 max-w-prose leading-relaxed space-y-2'>
-            <p><b>Real people, real sessions.</b> Learn and mentor in scheduled circles and 1‑on‑1s.</p>
-            <ul className='list-disc pl-5 space-y-1'>
-                <li>Schedule sessions with calendar support</li>
-                <li>Join learning circles or 1‑on‑1 mentoring</li>
-                <li>Grow with feedback and community</li>
-            </ul>
-            </div>
+        {/* Hero Image */}
+        <div className="relative">
+        <div className="relative z-10 hover:scale-105 transition duration-500">
+            <img
+            src={media2}
+            alt="People talking"
+            className="w-full h-auto max-w-lg mx-auto drop-shadow-2xl"
+            />
         </div>
-        <div className='rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-6'>
-            <h3 className='text-xl font-semibold mb-3'>Features</h3>
-            <ul className='list-disc pl-5 space-y-2 text-gray-700'>
-            <li><b>Automated scheduling:</b> Sessions slot straight into your Google Calendar</li>
-            <li><b>Leaderboard:</b> Celebrate outstanding mentors</li>
-            <li><b>Full control:</b> Chat, pick your mentor, and schedule what you want</li>
-            <li><b>Free to explore:</b> Jump in and browse communities</li>
-            </ul>
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-400/20 to-purple-400/20 blur-3xl -z-10 scale-110"></div>
         </div>
-        </div>
+    </div>
     </section>
 
-    {/* Call to Action */}
-    <footer className='py-14 text-center bg-gradient-to-r from-indigo-600 to-fuchsia-600'>
-        <p className='mb-5 text-lg md:text-xl font-semibold text-white'>
-        Ready to find a community that loves that thing you love?
-        </p>
-        <Button 
-        className='px-6 py-3 rounded-2xl bg-white text-indigo-700 hover:bg-indigo-50 transition shadow-sm'
-        component={RouterLink}
-        to='/register'
-        >
-        Get Started — It’s Free
-        </Button>
-    </footer>
-    </div>
-);
-}
+    {/* Second Section */}
+    <section className="px-6 py-16 bg-white/60 backdrop-blur-sm">
+    <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        {/* Image */}
+        <div className="order-2 md:order-1 relative">
+        <div className="relative z-10 hover:scale-105 transition duration-500">
+            <img
+            src={media1}
+            alt="People connecting"
+            className="w-full h-auto max-w-md mx-auto drop-shadow-xl"
+            />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-tl from-purple-400/20 to-violet-400/20 blur-3xl -z-10 scale-110"></div>
+        </div>
 
+        {/* Text */}
+        <div className="order-1 md:order-2 text-center md:text-left">
+        <h2 className="text-3xl md:text-4xl font-bold mb-6 text-slate-800">
+            Connect with mentors who are passionate about your topic
+        </h2>
+        <p className="text-lg text-slate-600 leading-relaxed mb-6">
+            Whether you're preparing for an interview, learning a new skill, seeking career advice, or just wanting to chat about an interesting topic — Skill Swap is the perfect platform to connect with someone
+        </p>
+        <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+            <span className="px-4 py-2 bg-violet-100 text-violet-700 rounded-full text-sm font-medium">
+            Practice interviews
+            </span>
+            <span className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+            Learn skills
+            </span>
+            <span className="px-4 py-2 bg-fuchsia-100 text-fuchsia-700 rounded-full text-sm font-medium">
+            Career advice
+            </span>
+        </div>
+        </div>
+    </div>
+    </section>
+
+    {/* Footer */}
+    <footer className="px-6 py-14 bg-slate-800">
+    <div className="max-w-6xl mx-auto text-center">
+        <div className="text-lg text-slate-200 font-medium mb-3">
+        Create a listing about your topic, or browse listings from other people → Connect with others via the built in chat → meet for coffee!✨
+        </div>
+    </div>
+    </footer>
+</div>
+);
+};
 
 export default LandingPage;
