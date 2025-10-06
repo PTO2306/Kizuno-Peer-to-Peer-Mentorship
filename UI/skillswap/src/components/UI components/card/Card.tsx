@@ -1,5 +1,6 @@
 import React from "react";  
-import { Card, CardActionArea, CardContent, Typography, Box, Dialog, DialogTitle, DialogContent, DialogActions, Button, Avatar } from '@mui/material';
+import { Card, CardActionArea, CardContent, Typography, Box, Dialog, DialogTitle, DialogContent, Avatar, IconButton, DialogActions, Button } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 // External props needed to render a single class card
 interface ClassCardProps {
@@ -42,17 +43,15 @@ const ClassCard: React.FC<ClassCardProps> = ({ avatar, title, mentor, subtitle, 
           />
         </Box>
         <CardContent className="flex flex-col gap-2 flex-1">
-          {/* Top row: title + mentor left, chip right */}
           <div className="flex items-start justify-between">
             <div className="flex flex-col gap-0.5">
-              <Typography variant="h5">{title}</Typography> {/* class title */}
+              <Typography variant="h5">{title}</Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 by {mentor}
-              </Typography> {/* mentor name */}
+              </Typography>
             </div>
           </div>
 
-          {/* Bottom row: full-width subtitleription */}
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {subtitle}
           </Typography>
@@ -62,7 +61,7 @@ const ClassCard: React.FC<ClassCardProps> = ({ avatar, title, mentor, subtitle, 
 
     {/* Dialog opens on click/tap and shows detailed info */}
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>
+      <DialogTitle sx={{ position: 'relative', pr: 6 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar
             alt={title}
@@ -71,6 +70,9 @@ const ClassCard: React.FC<ClassCardProps> = ({ avatar, title, mentor, subtitle, 
           />
           <Typography variant="h6">{title}</Typography>
         </Box>
+        <IconButton color='primary'  aria-label="close" onClick={handleClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
       <DialogContent dividers>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -83,7 +85,7 @@ const ClassCard: React.FC<ClassCardProps> = ({ avatar, title, mentor, subtitle, 
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} variant="contained">Close</Button>
+        <Button variant='contained'>Get in touch</Button>
       </DialogActions>
     </Dialog>
     </>
