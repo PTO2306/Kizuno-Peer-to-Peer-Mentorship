@@ -10,11 +10,8 @@ const UserMenuItems: React.FC = () => {
   /** User menu item labels and click handlers */
   const settings = [
     {
-      label: 'Profile',
+      label: 'Edit Profile',
       onClick: () => navigate('/profile')
-    },
-    {
-      label: 'Account'
     },
     {
       label: 'Logout',

@@ -15,7 +15,7 @@ const ClassCard: React.FC<ClassCardProps> = ({ media, title, mentor, desc, level
     <Card 
       variant="outlined"
       sx={{
-        width: { xs: '100%', sm: 'calc(50% - 16px)', md: 'calc(33.333% - 16px)' }, // 3 per row on md+
+        width: { xs: '100%', sm: 'calc(50% - 16px)', md: 'calc(33.333% - 16px)', lg: 'calc(25% - 16px)' },
         minWidth: 0,
       }}
     >
@@ -26,22 +26,22 @@ const ClassCard: React.FC<ClassCardProps> = ({ media, title, mentor, desc, level
           image={media}
           title={title}
         />
-        <CardContent className="flex flex-col gap-2 flex-1">
+        <CardContent className="flex flex-col flex-1">
           {/* Top row: title + mentor left, chip right */}
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-x-2">
             <div className="flex flex-col gap-0.5">
-              <Typography variant="h5">{title}</Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              <Typography component="h4" variant="body1">{title}</Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                 {mentor}
               </Typography>
             </div>
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 ">
               <SkillLevelChip level={level} />
             </div>
           </div>
 
           {/* Bottom row: full-width description */}
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             {desc}
           </Typography>
         </CardContent>
