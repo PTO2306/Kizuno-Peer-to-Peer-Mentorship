@@ -16,3 +16,15 @@ export interface ProfileModel {
   skills?: SkillModel[];
   profilePictureUrl?: string;
 }
+
+export interface TagsModel {
+  name: string;
+}
+
+export interface ListingModel {
+  title: string;
+  description: string;
+  tags: TagsModel[];
+}
+
+

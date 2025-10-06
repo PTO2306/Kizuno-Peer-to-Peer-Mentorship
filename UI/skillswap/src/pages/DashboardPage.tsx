@@ -1,40 +1,75 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Box , Button, ButtonGroup, Typography, Paper} from '@mui/material';
 import ClassCard from '../components/UI components/card/ClassCard';
 import CardMedia from '../assets/skill-card-placeholder.jpg';
 import CardMedia2 from '../assets/skill-card-placeholder2.jpg';
 import CardMedia3 from '../assets/skill-card-placeholder3.jpg';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
-const DashboardPage: React.FC = () => {
+// For later to have dynamic categories as filters
+interface DashboardProps {
+    catergoryData: string[]
+}
+
+const categoryData = ["All", "Coding", "Gardening", "Marketing", "Gaming", "Music"]
+
+const DashboardPage = () => {
+    const [category, setCategory] = useState("All")
+    const [userType, setUserType] = useState("Learning")
+
+
+    const categoryButtons = categoryData.map(cat => (
+        <Button
+            key={cat}
+            variant={category === cat ? "contained" : "outlined"}
+            onClick={() => setCategory(cat)}
+            size="small"
+            className='rounded-4xl'
+        >
+            {cat}
+        </Button>
+    ));
 
     return (
-        <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-            {/* Header */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '30px',
-                padding: '20px',
-                backgroundColor: '#f8f9fa',
-                borderRadius: '8px'
-            }}>
-                <div>
-                    <h1>Dashboard</h1>
-                    <p style={{ margin: 0, color: '#666' }}>
-                        {/* Welcome back{profile?.displayName ? `, ${profile.displayName}` : ''}! */}
-                    </p>
-                </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div style={{
-                backgroundColor: 'white',
-                padding: '20px',
-                borderRadius: '8px',
-                border: '1px solid #dee2e6'
-            }}>
-                <h2>Quick Actions</h2>
-                <div className="flex flex-wrap gap-4 max-h-[80vh] overflow-y-auto p-4">
+        <Box className="flex flex-col items-center w-full min-h-screen py-10 px-4">
+            <Paper className="w-full max-w-7xl flex flex-col md:flex-row md:justify-between md:items-center p-2 items-center gap-2">
+                <Box className="flex gap-2 overflow-x-auto">
+                 {categoryButtons}
+                </Box>
+                <Box className="flex items-center gap-4">
+                    <Typography 
+                        variant="caption" 
+                        color="text.secondary" 
+                        className="uppercase font-semibold mt-1"
+                    >
+                        Dashboard View:
+                    </Typography>
+    
+                     
+                        <ButtonGroup variant="outlined" aria-label="Dashboard View Selector">
+                            <Button 
+                                variant={userType === "Learning" ? "contained" : "outlined"} 
+                                onClick={() => setUserType("Learning")}
+                            >
+                                Learning
+                            </Button>
+                            <Button 
+                                variant={userType === "Teaching" ? "contained" : "outlined"} 
+                                onClick={() => setUserType("Teaching")}
+                            >
+                                Teaching
+                            </Button>
+                        </ButtonGroup>
+                        <Button
+                            variant="contained"
+                            startIcon={<FilterListIcon />}
+                            size='small' 
+                        >
+                        Filters
+                        </Button>
+                </Box>
+            </Paper>
+            <Box className = "flex flex-wrap gap-4 justify-between py-4 max-w-7xl">
                     <ClassCard
                         media={CardMedia}
                         title='Terrarium Workshop'
@@ -119,9 +154,8 @@ const DashboardPage: React.FC = () => {
                         desc='Get support from a senior frontend dev'
                         level='advanced'
                     />
-                </div>
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 };
 
