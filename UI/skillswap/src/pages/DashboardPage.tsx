@@ -1,8 +1,5 @@
 import React from 'react';
 import ClassCard from '../components/UI components/card/ClassCard';
-import CardMedia from '../assets/skill-card-placeholder.jpg';
-import CardMedia2 from '../assets/skill-card-placeholder2.jpg';
-import CardMedia3 from '../assets/skill-card-placeholder3.jpg';
 
 const DashboardPage: React.FC = () => {
 
@@ -25,7 +22,6 @@ const DashboardPage: React.FC = () => {
                     </p>
                 </div>
             </div>
-
             {/* Quick Actions */}
             <div style={{
                 backgroundColor: 'white',
@@ -36,88 +32,11 @@ const DashboardPage: React.FC = () => {
                 <h2>Quick Actions</h2>
                 <div className="flex flex-wrap gap-4 max-h-[80vh] overflow-y-auto p-4">
                     <ClassCard
-                        media={CardMedia}
-                        title='Terrarium Workshop'
-                        mentor='Michael Scott'
-                        desc='Join our terrarium workshop!'
-                        level='beginner'
-                    />
-                    <ClassCard
-                        media={CardMedia2}
-                        title='Dota 2 Coaching'
-                        mentor='Liz Mouton'
-                        desc='Coaching for position 4'
-                        level='intermediate'
-                    />
-                    <ClassCard
-                        media={CardMedia3}
-                        title='Frontend Developer Support'
-                        mentor='Chanel Brits'
-                        desc='Get support from a senior frontend dev'
-                        level='advanced'
-                    />
-                    <ClassCard
-                        media={CardMedia}
-                        title='Terrarium Workshop'
-                        mentor='Michael Scott'
-                        desc='Join our terrarium workshop!'
-                        level='beginner'
-                    />
-                    <ClassCard
-                        media={CardMedia2}
-                        title='Dota 2 Coaching'
-                        mentor='Liz Mouton'
-                        desc='Coaching for position 4'
-                        level='intermediate'
-                    />
-                    <ClassCard
-                        media={CardMedia3}
-                        title='Frontend Developer Support'
-                        mentor='Chanel Brits'
-                        desc='Get support from a senior frontend dev'
-                        level='advanced'
-                    />
-                    <ClassCard
-                        media={CardMedia}
-                        title='Terrarium Workshop'
-                        mentor='Michael Scott'
-                        desc='Join our terrarium workshop!'
-                        level='beginner'
-                    />
-                    <ClassCard
-                        media={CardMedia2}
-                        title='Dota 2 Coaching'
-                        mentor='Liz Mouton'
-                        desc='Coaching for position 4'
-                        level='intermediate'
-                    />
-                    <ClassCard
-                        media={CardMedia3}
-                        title='Frontend Developer Support'
-                        mentor='Chanel Brits'
-                        desc='Get support from a senior frontend dev'
-                        level='advanced'
-                    />
-                    <ClassCard
-                        media={CardMedia}
-                        title='Terrarium Workshop'
-                        mentor='Michael Scott'
-                        desc='Join our terrarium workshop!'
-                        level='beginner'
-                    />
-                    <ClassCard
-                        media={CardMedia2}
-                        title='Dota 2 Coaching'
-                        mentor='Liz Mouton'
-                        desc='Coaching for position 4'
-                        level='intermediate'
-                    />
-                    <ClassCard
-                        media={CardMedia3}
-                        title='Frontend Developer Support'
-                        mentor='Chanel Brits'
-                        desc='Get support from a senior frontend dev'
-                        level='advanced'
+                        avatar={''}
+                        title='Developer interview practice'
+                        mentor='Coding Jesus'
+                        subtitle='Brush up on your interview skills with an experienced SWE'
+                        desc='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.'
                     />
                 </div>
             </div>
