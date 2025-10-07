@@ -1,25 +1,28 @@
 import { useLocation } from 'react-router';
 import { NotificationProvider } from './components/NotificationContext';
-import { AuthProvider } from './auth/AuthContext';
-import { ProfileProvider } from './auth/ProfileContext';
+import { AuthProvider } from './Data/AuthContext';
+import { ProfileProvider } from './Data/ProfileContext';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import NavBar from './components/UI components/navbar/NavBar';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import AuthGuard from './auth/AuthGuard';
+import AuthGuard from './Data/AuthGuard';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import OnboardingPage from './pages/OnboardingPage';
+import { ListingProvider } from './Data/ListingContext';
 
 function App() {
   return (
     <NotificationProvider>
       <AuthProvider>
         <ProfileProvider>
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
+          <ListingProvider>
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </ListingProvider>
         </ProfileProvider>
       </AuthProvider>
     </NotificationProvider>

@@ -4,7 +4,7 @@ import { TextField, Button, CircularProgress, Chip, Box, Typography, Stepper, St
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useProfile } from '../auth/ProfileContext';
+import { useProfile } from '../Data/ProfileContext';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Delete from '@mui/icons-material/Delete';
 import type { SkillModel } from '../models/userModels';

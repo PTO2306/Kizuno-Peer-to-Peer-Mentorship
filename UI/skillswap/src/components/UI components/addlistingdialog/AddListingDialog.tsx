@@ -1,108 +1,105 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, CircularProgress, Chip, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Divider } from '@mui/material';
-import { useForm, Controller } from "react-hook-form";
+import {
+  TextField,
+  Button,
+  CircularProgress,
+  Chip,
+  Box,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider,
+  MenuItem
+} from '@mui/material';
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNotification } from '../../Notification';
+import type { Availability, ListingModel, ListingType, Mode, SkillLevel, TagsModel } from '../../../models/userModels';
+import { useListing } from '../../../Data/ListingContext';
 
-export interface TagsModel {
-  name: string;
-  isTeaching: boolean; 
-}
-
-
-export interface ListingModel {
+export interface ListingForm {
   title: string;
   description: string;
-  tags: TagsModel[]; 
+  type: ListingType;
+  skillLevel?: SkillLevel;
+  availability?: Availability;
+  mode?: 'Online' | 'InPerson' | 'Hybrid';
+  tags: TagsModel[];
+}
+
+const options = {
+  skillLevels: ['Beginner', 'Intermediate', 'Advanced', 'Expert'] as SkillLevel[],
+  availabilities: ['Anytime', 'Weekdays', 'Weekends', 'Evenings', 'Mornings', 'Afternoons'] as Availability[],
+  modes: ['Online', 'InPerson', 'Hybrid'] as Mode[],
+  listingTypes: ['Mentor', 'Mentee'] as ListingType[],
 }
 
 const tagsSchema = z.object({
-  name: z.string().min(1, "Tag name is required"),
-  isTeaching: z.boolean(),
+  name: z.string().min(1, 'Tag name is required'),
 });
 
 const listingSchema = z.object({
-  title: z.string().min(5, "Title must be at least 5 characters").max(100),
-  description: z.string().min(20, "Description must be at least 20 characters").max(1000),
-  tags: z.array(tagsSchema).max(20, "A maximum of 20 combined tags are allowed").optional(), 
+  title: z.string().min(5, 'Title must be at least 5 characters').max(100),
+  description: z.string().min(20, 'Description must be at least 20 characters').max(1000),
+  type: z.enum(options.listingTypes),
+  skillLevel: z.enum(options.skillLevels).optional(),
+  availability: z.enum(options.availabilities).optional(),
+  mode: z.enum(options.modes).optional(),
+  tags: z.array(tagsSchema).max(20, 'Maximum of 20 tags allowed').min(1, 'At least one tag is required'),
 });
 
-type ListingForm = z.infer<typeof listingSchema>;
+type ListingFormType = z.infer<typeof listingSchema>;
 
 interface AddListingDialogProps {
   open: boolean;
   onClose: () => void;
 }
 
-
-const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose}) => {
+const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose }) => {
   const { showNotification } = useNotification();
+  const { createListing } = useListing();
   const [loading, setLoading] = useState(false);
-  const [skillInput, setSkillInput] = useState("");
-  const [isTeaching, setIsTeaching] = useState(true); 
+  const [tagInput, setTagInput] = useState("");
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    getValues,
-    reset,
-    formState: { errors, isValid },
-  } = useForm<ListingForm>({
-    resolver: zodResolver(listingSchema),
-    mode: "onChange",
-    defaultValues: {
-      title: "",
-      description: "",
-      tags: [],
-    },
-  });
+  const { control, handleSubmit, reset, setValue, getValues, watch, formState: { errors, isValid } } =
+    useForm<ListingFormType>({
+      resolver: zodResolver(listingSchema),
+      mode: 'onChange',
+      defaultValues: {
+        title: '',
+        description: '',
+        type: 'Mentor',
+        skillLevel: undefined,
+        availability: undefined,
+        mode: undefined,
+        tags: [],
+      },
+    });
+
+  const typeValue = watch('type');
+  const tags = useWatch({ control, name: 'tags' }) ?? [];
+
 
   useEffect(() => {
-    if (open) {
-      reset();
-      setSkillInput("");
-      setIsTeaching(true);
-    }
+    if (open) reset();
   }, [open, reset]);
 
-
-  const handleAddSkill = () => {
-    if (skillInput.trim()) {
-      const currentSkills = getValues("tags") ?? [];
-      const skillName = skillInput.trim();
-      
-      if (!currentSkills.some(s => s.name.toLowerCase() === skillName.toLowerCase() && s.isTeaching === isTeaching)) {
-        setValue(
-          "tags",
-          [...currentSkills, { name: skillName, isTeaching }],
-          { shouldDirty: true, shouldValidate: true }
-        );
-      }
-      setSkillInput("");
-    }
-  };
-
-  const handleRemoveSkill = (skillToRemove: TagsModel) => {
-    const currentSkills = getValues("tags") ?? [];
-    setValue(
-      "tags",
-      currentSkills.filter(
-        (s) => !(s.name === skillToRemove.name && s.isTeaching === skillToRemove.isTeaching)
-      ),
-      { shouldDirty: true, shouldValidate: true }
-    );
-  };
-
-  const onSubmit = async (data: ListingForm) => {
+  const onSubmit = async (data: ListingFormType) => {
     setLoading(true);
-
     try {
-      console.log(data); 
 
-      showNotification('Listing created successfully!', 'success');
-      onClose();
+      const listing = data as ListingModel;
+      console.log(listing);
+
+      const response = await createListing(listing);
+
+      if (response.success) {
+        showNotification('Listing created successfully!', 'success');
+        onClose();
+      }
 
     } catch (error: any) {
       showNotification(
@@ -114,177 +111,180 @@ const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose}) => 
     }
   };
 
-  const allTags = getValues("tags") ?? [];
-  const teachingTags = allTags.filter(s => s.isTeaching) ?? [];
-  const learningTags = allTags.filter(s => !s.isTeaching) ?? [];
+  const handleAddTag = () => {
+    const tagName = tagInput.trim();
+    if (!tagName) return;
+
+    const currentTags = getValues("tags") ?? [];
+    if (currentTags.some(t => t.name === tagName)) return;
+
+    setValue("tags", [...currentTags, { name: tagName }], {
+      shouldValidate: false,
+      shouldDirty: true,
+    });
+    setTagInput("");
+  };
+
+  const handleRemoveTag = (tag: TagsModel) => {
+    const currentTags = getValues("tags") ?? [];
+    setValue(
+      "tags",
+      currentTags.filter(t => t.name !== tag.name),
+      {
+        shouldValidate: false,
+        shouldDirty: true,
+      }
+    );
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Fill in the content for your Listing Below</DialogTitle>
-      
+      <DialogTitle>Create a New Listing</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent dividers>
-          <Box className="space-y-6">
+        <DialogContent dividers className="space-y-6">
 
-            {/* Title Field */}
+          {/* Listing Type Buttons */}
+          <Box className="flex gap-4 mb-4">
+            {['Mentor', 'Mentee'].map(t => (
+              <Button
+                key={t}
+                variant={typeValue === t ? 'contained' : 'outlined'}
+                color={typeValue === t ? 'primary' : 'inherit'}
+                onClick={() => setValue('type', t as ListingType, { shouldValidate: true })}
+              >
+                {t === 'Mentor' ? 'Mentor (I can teach)' : 'Mentee (I want to learn)'}
+              </Button>
+            ))}
+          </Box>
+
+          {/* Title Field */}
+          <Controller
+            name="title"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Listing Title"
+                fullWidth
+                error={!!errors.title}
+                helperText={errors.title?.message || `${field.value.length}/100`}
+              />
+            )}
+          />
+
+          {/* Description Field */}
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Detailed Description"
+                fullWidth
+                multiline
+                rows={4}
+                error={!!errors.description}
+                helperText={errors.description?.message || `${field.value.length}/1000`}
+              />
+            )}
+          />
+
+          <Divider />
+
+          {/* Optional Selects */}
+          <Box className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Controller
-              name="title"
+              name="skillLevel"
               control={control}
               render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Listing Title"
-                  fullWidth
-                  required
-                  error={!!errors.title}
-                  helperText={errors.title?.message || `${field.value.length}/100 characters`}
-                />
+                <TextField select label="Skill Level" fullWidth {...field} value={field.value || ''} error={!!errors.skillLevel}>
+                  {options.skillLevels.map(level => (
+                    <MenuItem key={level} value={level}>{level}</MenuItem>
+                  ))}
+                </TextField>
               )}
             />
 
-            {/* Description Field */}
             <Controller
-              name="description"
+              name="availability"
               control={control}
               render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Detailed Description"
-                  fullWidth
-                  required
-                  multiline
-                  rows={4}
-                  error={!!errors.description}
-                  helperText={errors.description?.message || `${field.value.length}/1000 characters`}
-                />
+                <TextField select label="Availability" fullWidth {...field} value={field.value || ''} error={!!errors.availability}>
+                  {options.availabilities.map(a => (
+                    <MenuItem key={a} value={a}>{a}</MenuItem>
+                  ))}
+                </TextField>
               )}
             />
 
-            <Divider />
+            <Controller
+              name="mode"
+              control={control}
+              render={({ field }) => (
+                <TextField select label="Mode" fullWidth {...field} value={field.value || ''} error={!!errors.mode}>
+                  {options.modes.map(m => (
+                    <MenuItem key={m} value={m}>{m === 'InPerson' ? "In Person" : m}</MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
+          </Box>
 
-            {/* Skills/Tags Section */}
-            <Box className="space-y-4">
-              <Typography variant="h6">Skills & Interests</Typography>
-              
-              {/* Teaching/Learning Toggle */}
-              <Box className="flex gap-2 mb-4">
-                <Button
-                  variant={isTeaching ? "contained" : "outlined"}
-                  onClick={() => setIsTeaching(true)}
-                  size="small"
-                  color="primary"
-                >
-                  Teaching Skills
-                </Button>
-                <Button
-                  variant={!isTeaching ? "contained" : "outlined"}
-                  onClick={() => setIsTeaching(false)}
-                  size="small"
-                  color="primary"
-                >
-                  Learning Interests
-                </Button>
-              </Box>
-
-              {/* Skill Input */}
-              <Box className="flex gap-2 mb-2 items-start">
-                <TextField
-                  label={`Add ${isTeaching ? "Skills You're Offering To Teach" : "Skills You're Looking To Learn"}`}
-                  value={skillInput}
-                  onChange={(e) => setSkillInput(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddSkill();
-                    }
-                  }}
-                  fullWidth
-                  size="small"
-                  error={!!errors.tags}
-                  helperText={errors.tags?.message || `Press Enter or Click Add`}
-                />
-                <Button
-                  type="button"
-                  variant="contained"
-                  onClick={handleAddSkill}
-                  disabled={!skillInput.trim()}
-                  size="medium"
-                >
-                  Add
-                </Button>
-              </Box>
-
-              {/* Display Teaching Skills */}
-              <Box className="mb-4">
-                <Typography variant="subtitle2" className="mb-2 font-semibold text-primary">
-                  Offering to Teach ({teachingTags.length})
+          {/* Tags Section */}
+          <Box className="space-y-2">
+            <Typography variant="h6">Skills & Interests</Typography>
+            <Box className="flex gap-2 mb-2 items-center">
+              <TextField
+                label={`Add ${typeValue === 'Mentor' ? "Skills You're Offering To Teach" : "Skills You're Interested In Learning"}`}
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyUp={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTag();
+                  }
+                }}
+                fullWidth
+                size="small"
+              />
+              <Button
+                type="button"
+                variant="contained"
+                onClick={handleAddTag}
+                disabled={!tagInput.trim()}
+                size="small"
+              >
+                Add
+              </Button>
+            </Box>
+            <Box className="flex flex-wrap gap-2 min-h-[40px]">
+              {tags.length === 0 ? (
+                <Typography variant="body2" color="textPrimary" className="italic py-2">
+                  No tags added yet
                 </Typography>
-                <Box className="flex flex-wrap gap-2 min-h-[40px] p-2">
-                  {teachingTags.length === 0 ? (
-                    <Typography variant="body2" color="textSecondary" className="italic py-1">
-                      No teaching skills added yet.
-                    </Typography>
-                  ) : (
-                    teachingTags.map((skill) => (
-                      <Chip
-                        key={`${skill.name}-T`}
-                        label={skill.name}
-                        onDelete={() => handleRemoveSkill(skill)}
-                        color="primary"
-                        variant="filled"
-                      />
-                    ))
-                  )}
-                </Box>
-              </Box>
-
-              {/* Display Learning Skills */}
-              <Box>
-                <Typography variant="subtitle2" className="mb-2 font-semibold text-secondary">
-                  Interested in Learning ({learningTags.length})
-                </Typography>
-                <Box className="flex flex-wrap gap-2 min-h-[40px] p-2">
-                  {learningTags.length === 0 ? (
-                    <Typography variant="body2" color="textSecondary" className="italic py-1">
-                      No learning interests added yet.
-                    </Typography>
-                  ) : (
-                    learningTags.map((skill) => (
-                      <Chip
-                        key={`${skill.name}-L`}
-                        label={skill.name}
-                        onDelete={() => handleRemoveSkill(skill)}
-                        color="secondary"
-                        variant="filled"
-                      />
-                    ))
-                  )}
-                </Box>
-              </Box>
+              ) : (
+                tags.map((tag) => (
+                  <Chip
+                    key={tag.name}
+                    label={tag.name}
+                    onDelete={() => handleRemoveTag(tag)}
+                    color="primary"
+                  />
+                ))
+              )}
             </Box>
           </Box>
         </DialogContent>
 
         <DialogActions className="p-4">
-          <Button
-            type="button"
-            variant="outlined"
-            onClick={onClose}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={!isValid || loading}
-          >
-            {loading ? <CircularProgress size={24} /> : "Create Listing"}
+          <Button variant="outlined" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button type="submit" variant="contained" disabled={!isValid || loading}>
+            {loading ? <CircularProgress size={24} /> : 'Create Listing'}
           </Button>
         </DialogActions>
       </form>
     </Dialog>
   );
-}
+};
 
 export default AddListingDialog;
