@@ -119,7 +119,7 @@ const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose }) =>
     if (currentTags.some(t => t.name === tagName)) return;
 
     setValue("tags", [...currentTags, { name: tagName }], {
-      shouldValidate: false,
+      shouldValidate: true,
       shouldDirty: true,
     });
     setTagInput("");
@@ -131,7 +131,7 @@ const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose }) =>
       "tags",
       currentTags.filter(t => t.name !== tag.name),
       {
-        shouldValidate: false,
+        shouldValidate: true,
         shouldDirty: true,
       }
     );
