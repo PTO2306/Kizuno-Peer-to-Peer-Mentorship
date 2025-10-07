@@ -11,11 +11,8 @@ import AuthGuard from './Data/AuthGuard';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import OnboardingPage from './pages/OnboardingPage';
-<<<<<<< HEAD
-import MyListingPage from './pages/MyListingPage';
-=======
 import { ListingProvider } from './Data/ListingContext';
->>>>>>> dev
+import MyListingPage from './pages/MyListingPage';
 
 function App() {
   return (
