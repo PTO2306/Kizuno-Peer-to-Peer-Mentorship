@@ -41,6 +41,10 @@ public static class ListingEndpoints
                 UserId = l.UserId,
                 Title = l.Title,
                 Description = l.Description,
+                Type = l.Type,
+                SkillLevel = l.SkillLevel,
+                Availability = l.Availability,
+                Mode = l.Mode,
                 CreatedAt = l.CreatedAt,
                 UpdatedAt = l.UpdatedAt,
                 Tags = l.ListingTags.Select(lt => new TagDto
@@ -49,7 +53,7 @@ public static class ListingEndpoints
                     Name = lt.Tag.Name
                 }).ToList()
             })
-            .ToListAsync();
+            .ToListAsync(); 
 
         return TypedResults.Ok(listings);
     }
@@ -69,6 +73,10 @@ public static class ListingEndpoints
             UserId = Guid.Parse(userId),
             Title = dto.Title,
             Description = dto.Description,
+            Type = dto.Type,
+            SkillLevel = dto.SkillLevel,
+            Availability = dto.Availability,
+            Mode = dto.Mode,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             ListingTags = new List<ListingTags>()
@@ -98,6 +106,10 @@ public static class ListingEndpoints
             UserId = listing.UserId,
             Title = listing.Title,
             Description = listing.Description,
+            Type = listing.Type,
+            SkillLevel = listing.SkillLevel,
+            Availability = listing.Availability,
+            Mode = listing.Mode,
             CreatedAt = listing.CreatedAt,
             UpdatedAt = listing.UpdatedAt,
             Tags = listing.ListingTags.Select(lt => new TagDto
@@ -128,6 +140,10 @@ public static class ListingEndpoints
 
         listing.Title = dto.Title;
         listing.Description = dto.Description;
+        listing.Type = dto.Type;
+        listing.SkillLevel = dto.SkillLevel;
+        listing.Availability = dto.Availability;
+        listing.Mode = dto.Mode;
         listing.UpdatedAt = DateTime.UtcNow;
 
         listing.ListingTags.Clear();
@@ -155,6 +171,10 @@ public static class ListingEndpoints
             UserId = listing.UserId,
             Title = listing.Title,
             Description = listing.Description,
+            Type = listing.Type,
+            SkillLevel = listing.SkillLevel,
+            Availability = listing.Availability,
+            Mode = listing.Mode,
             CreatedAt = listing.CreatedAt,
             UpdatedAt = listing.UpdatedAt,
             Tags = listing.ListingTags.Select(lt => new TagDto

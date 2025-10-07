@@ -4,7 +4,7 @@ import { TextField, Button, CircularProgress, Chip, Box, Typography, Card, CardC
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useProfile } from '../auth/ProfileContext';
+import { useProfile } from '../Data/ProfileContext';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Delete from '@mui/icons-material/Delete';
 import ArrowBack from '@mui/icons-material/ArrowBack';
@@ -341,6 +341,24 @@ const ProfileEditPage: React.FC = () => {
                 Skills & Interests
               </Typography>
 
+              <Box className="flex gap-2 mb-4">
+                <Button
+                  variant={isTeaching ? "contained" : "outlined"}
+                  onClick={() => setIsTeaching(true)}
+                  size="small"
+                >
+                  Teaching
+                </Button>
+                <Button
+                  variant={!isTeaching ? "contained" : "outlined"}
+                  onClick={() => setIsTeaching(false)}
+                  size="small"
+                  color='secondary'
+                >
+                  Learning
+                </Button>
+              </Box>
+
               <Box className="flex gap-2 mb-2 items-center">
                 <TextField
                   label={`Add ${isTeaching ? "Skills You're Offering To Teach" : "Skills You're Interested In Learning"}`}
@@ -366,22 +384,7 @@ const ProfileEditPage: React.FC = () => {
                 </Button>
               </Box>
 
-              <Box className="flex gap-2 mb-4">
-                <Button
-                  variant={isTeaching ? "contained" : "outlined"}
-                  onClick={() => setIsTeaching(true)}
-                  size="small"
-                >
-                  Teaching
-                </Button>
-                <Button
-                  variant={!isTeaching ? "contained" : "outlined"}
-                  onClick={() => setIsTeaching(false)}
-                  size="small"
-                >
-                  Learning
-                </Button>
-              </Box>
+
 
               {/* Teaching Skills */}
               <Box className="mb-4">

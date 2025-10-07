@@ -21,7 +21,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Avatar from '@mui/material/Avatar';
 import { Button, Menu, Tooltip } from '@mui/material'; // Imported Button
 import UserMenuItems from './UserMenuItems';
-import { useProfile } from '../../../auth/ProfileContext';
+import { useProfile } from '../../../Data/ProfileContext';
 import SearchBox from './SearchBox';
 import AddIcon from '@mui/icons-material/Add';
 import { useLocation } from 'react-router';
@@ -120,7 +120,7 @@ const NavBar: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AddListingDialog open={isAddListingDialogOpen} onClose={() => setIsListingDialogOpen(false)}/>
+      <AddListingDialog open={isAddListingDialogOpen} onClose={() => setIsListingDialogOpen(false)} />
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar>
@@ -139,51 +139,51 @@ const NavBar: React.FC = () => {
           >
             <MenuIcon />
           </IconButton>
-          
+
           {/* App Title */}
-          <Typography 
-            variant="h6" 
-            noWrap 
-            component="div" 
-            sx={{ 
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
               display: { xs: 'none', sm: 'block' },
               mr: 3
             }}
           >
             Skill Jam
           </Typography>
-          
+
           {/* Search Box */}
           {location === "/dashboard" ? (
             <Box className="flex-1 flex justify-center">
-            <Box className=" flex justify-between"> 
-              <Box className="min-w-[600px]">
-                <SearchBox/>
-              </Box>
-                <Button 
+              <Box className=" flex justify-between">
+                <Box className="min-w-[600px]">
+                  <SearchBox />
+                </Box>
+                <Button
                   startIcon={<AddIcon />}
-                  variant="outlined" 
+                  variant="outlined"
                   color='inherit'
                   onClick={() => setIsListingDialogOpen(true)}
-                  sx={{ 
-                  ml: 3, 
-                  display: { xs: 'none', sm: 'inline-flex' } 
-                }}
+                  sx={{
+                    ml: 3,
+                    display: { xs: 'none', sm: 'inline-flex' }
+                  }}
                 >
-                Add Listing
+                  Add Listing
                 </Button>
+              </Box>
             </Box>
-          </Box>
           ) : <Box sx={{ flexGrow: 1 }} />}
-          
-          
+
+
           {/* User Avatar (Right) */}
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ ml: 2 }}>
               <Avatar alt="User picture" src={apiUrl + profile?.profilePictureUrl || undefined} />
             </IconButton>
           </Tooltip>
-          
+
           {/* User Menu */}
           <Menu
             sx={{ mt: '45px' }}

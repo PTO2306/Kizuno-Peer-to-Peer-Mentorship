@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../../auth/AuthContext";
+import { useAuth } from "../../../Data/AuthContext";
 import { MenuItem, Typography } from "@mui/material";
 
 const UserMenuItems: React.FC = () => {
