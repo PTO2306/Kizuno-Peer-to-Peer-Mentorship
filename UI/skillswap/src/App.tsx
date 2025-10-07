@@ -11,6 +11,7 @@ import AuthGuard from './auth/AuthGuard';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import OnboardingPage from './pages/OnboardingPage';
+import MyListingPage from './pages/MyListingPage';
 
 function App() {
   return (
@@ -28,7 +29,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const navbarRoutes = ['/dashboard', '/profile'];
+  const navbarRoutes = ['/dashboard', '/profile', '/my-listings'];
   const showNavbar = navbarRoutes.includes(location.pathname);
 
   return (
@@ -61,6 +62,12 @@ function AppContent() {
             </AuthGuard>
           }
         />
+
+        <Route path="/my-listings" element={
+          <AuthGuard requireProfile={true}>
+            <MyListingPage />
+          </AuthGuard>
+        } />
       </Routes>
     </>
   );

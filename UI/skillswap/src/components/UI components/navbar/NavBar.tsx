@@ -26,6 +26,37 @@ import SearchBox from './SearchBox';
 import AddIcon from '@mui/icons-material/Add';
 import { useLocation } from 'react-router';
 import AddListingDialog from '../addlistingdialog/AddListingDialog';
+import NotificationBell from './NotificationBell';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import HomeIcon from '@mui/icons-material/Home';
+import { useNavigate } from 'react-router';
+
+
+type DrawerItem = {
+  text: string;
+  icon: React.ReactElement;
+  link: string;
+};
+
+const drawerData: DrawerItem[] = [
+  {
+    text: "Home",
+    icon: <HomeIcon />,
+    link: "/dashboard"
+  },
+  { text: "Upcoming sessions", 
+    icon: <CalendarMonthIcon />,
+    link: "/upcoming-sessions"
+  }, {
+    text: 'Leaderboard',
+    icon: <LeaderboardIcon />,
+    link: "/leaderboard"
+   } ,{
+    text: 'My Listings',
+    icon: <ListAltIcon />,
+    link: "/my-listings"
+  }
+];
 
 // PRE-PACKAGED MUI STYLING
 
@@ -98,6 +129,7 @@ const NavBar: React.FC = () => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const [isAddListingDialogOpen, setIsListingDialogOpen] = React.useState(false)
   const location = useLocation().pathname
+  const navigate = useNavigate()
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -178,6 +210,7 @@ const NavBar: React.FC = () => {
           
           
           {/* User Avatar (Right) */}
+          <NotificationBell />
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ ml: 2 }}>
               <Avatar alt="User picture" src={apiUrl + profile?.profilePictureUrl || undefined} />
@@ -224,13 +257,13 @@ const NavBar: React.FC = () => {
           </IconButton>
         </DrawerHeader>
         <List>
-          {['Upcoming sessions', 'Leaderboard'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
+          {drawerData.map((element) => (
+            <ListItem key={element.text} disablePadding>
+              <ListItemButton onClick={() => navigate(element.link)}>
                 <ListItemIcon>
-                  {index % 2 === 0 ? <CalendarMonthIcon /> : <LeaderboardIcon />}
+                  {element.icon}
                 </ListItemIcon>
-                <ListItemText primary={text} />
+                <ListItemText primary={element.text} />
               </ListItemButton>
             </ListItem>
           ))}
