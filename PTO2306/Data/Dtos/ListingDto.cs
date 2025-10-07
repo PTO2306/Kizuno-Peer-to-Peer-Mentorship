@@ -1,11 +1,20 @@
+using PTO2306.Data.Models;
+
 namespace PTO2306.Data.Dtos;
 
 public class ListingDto
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
+    
     public string Title { get; set; } = null!;
     public string? Description { get; set; }
+
+    public ListingType Type { get; set; } 
+    public SkillLevel? SkillLevel { get; set; }
+    public Availability? Availability { get; set; }
+    public Mode? Mode { get; set; }
+
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
