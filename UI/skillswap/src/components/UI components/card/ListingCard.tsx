@@ -3,7 +3,7 @@ import { Card, CardActionArea, CardContent, Typography, Box, Dialog, DialogTitle
 import CloseIcon from '@mui/icons-material/Close';
 
 // External props needed to render a single class card
-interface ClassCardProps {
+interface ListingCardProps {
   avatar: string; 
   title: string; 
   mentor: string; 
@@ -11,7 +11,7 @@ interface ClassCardProps {
   desc: string;
 }
 
-const ClassCard: React.FC<ClassCardProps> = ({ avatar, title, mentor, subtitle, desc }) => {
+const ListingCard: React.FC<ListingCardProps> = ({ avatar, title, mentor, subtitle, desc }) => {
   const [open, setOpen] = React.useState(false);
 
   const handleClick = () => {
@@ -92,4 +92,4 @@ const ClassCard: React.FC<ClassCardProps> = ({ avatar, title, mentor, subtitle, 
   );
 };
 
-export default ClassCard;
+export default ListingCard;

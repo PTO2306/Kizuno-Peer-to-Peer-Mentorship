@@ -19,10 +19,44 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Avatar from '@mui/material/Avatar';
-import { Menu, Tooltip } from '@mui/material';
+import { Button, Menu, Tooltip } from '@mui/material'; // Imported Button
 import UserMenuItems from './UserMenuItems';
-import { useProfile } from '../../../auth/ProfileContext';
+import { useProfile } from '../../../Data/ProfileContext';
 import SearchBox from './SearchBox';
+import AddIcon from '@mui/icons-material/Add';
+import { useLocation } from 'react-router';
+import AddListingDialog from '../addlistingdialog/AddListingDialog';
+import NotificationBell from './NotificationBell';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import HomeIcon from '@mui/icons-material/Home';
+import { useNavigate } from 'react-router';
+
+
+type DrawerItem = {
+  text: string;
+  icon: React.ReactElement;
+  link: string;
+};
+
+const drawerData: DrawerItem[] = [
+  {
+    text: "Home",
+    icon: <HomeIcon />,
+    link: "/dashboard"
+  },
+  { text: "Upcoming sessions", 
+    icon: <CalendarMonthIcon />,
+    link: "/upcoming-sessions"
+  }, {
+    text: 'Leaderboard',
+    icon: <LeaderboardIcon />,
+    link: "/leaderboard"
+  } ,{
+    text: 'My Listings',
+    icon: <ListAltIcon />,
+    link: "/my-listings"
+  }
+];
 
 // PRE-PACKAGED MUI STYLING
 
@@ -93,7 +127,9 @@ const NavBar: React.FC = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { profile } = useProfile();
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-
+  const [isAddListingDialogOpen, setIsListingDialogOpen] = React.useState(false)
+  const location = useLocation().pathname
+  const navigate = useNavigate()
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -116,9 +152,11 @@ const NavBar: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      <AddListingDialog open={isAddListingDialogOpen} onClose={() => setIsListingDialogOpen(false)} />
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar>
+          {/* Menu Icon */}
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -133,15 +171,53 @@ const NavBar: React.FC = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
+
+          {/* App Title */}
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              display: { xs: 'none', sm: 'block' },
+              mr: 3
+            }}
+          >
             Skill Jam
           </Typography>
-          <SearchBox />
+
+          {/* Search Box */}
+          {location === "/dashboard" ? (
+            <Box className="flex-1 flex justify-center">
+              <Box className=" flex justify-between">
+                <Box className="min-w-[600px]">
+                  <SearchBox />
+                </Box>
+                <Button
+                  startIcon={<AddIcon />}
+                  variant="outlined"
+                  color='inherit'
+                  onClick={() => setIsListingDialogOpen(true)}
+                  sx={{
+                    ml: 3,
+                    display: { xs: 'none', sm: 'inline-flex' }
+                  }}
+                >
+                  Add Listing
+                </Button>
+              </Box>
+            </Box>
+          ) : <Box sx={{ flexGrow: 1 }} />}
+
+
+          {/* User Avatar (Right) */}
+          <NotificationBell />
           <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ ml: 2 }}>
               <Avatar alt="User picture" src={apiUrl + profile?.profilePictureUrl || undefined} />
             </IconButton>
           </Tooltip>
+
+          {/* User Menu */}
           <Menu
             sx={{ mt: '45px' }}
             id="menu-appbar"
@@ -181,13 +257,13 @@ const NavBar: React.FC = () => {
           </IconButton>
         </DrawerHeader>
         <List>
-          {['Upcoming sessions', 'Leaderboard'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
+          {drawerData.map((element) => (
+            <ListItem key={element.text} disablePadding>
+              <ListItemButton onClick={() => navigate(element.link)}>
                 <ListItemIcon>
-                  {index % 2 === 0 ? <CalendarMonthIcon /> : <LeaderboardIcon />}
+                  {element.icon}
                 </ListItemIcon>
-                <ListItemText primary={text} />
+                <ListItemText primary={element.text} />
               </ListItemButton>
             </ListItem>
           ))}
@@ -200,4 +276,4 @@ const NavBar: React.FC = () => {
   );
 }
 
-export default NavBar;  
+export default NavBar;
