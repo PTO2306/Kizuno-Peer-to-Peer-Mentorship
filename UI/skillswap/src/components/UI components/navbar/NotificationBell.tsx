@@ -147,20 +147,20 @@ function NotificationBell() {
   return (
     <Box>
       {/* Icon and Counter */}
-      <IconButton 
+    <IconButton 
         color="primary" 
         aria-label="show notifications" 
         onClick={handleOpen}
         aria-controls={open ? 'notifications-menu' : undefined}
         aria-haspopup="true"
         size='medium'
-      >
+    >
         <Badge 
           badgeContent={unreadCount} 
           color="secondary"
           max={10}
         >
-          <NotificationsIcon fontSize='large' className='text-white' />
+          <NotificationsIcon className='text-white text-3xl md:text-4xl' />
         </Badge>
       </IconButton>
 

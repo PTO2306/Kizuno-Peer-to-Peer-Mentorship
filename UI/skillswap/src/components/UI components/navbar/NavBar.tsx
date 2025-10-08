@@ -19,7 +19,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Avatar from '@mui/material/Avatar';
-import { Button, Menu, Tooltip } from '@mui/material'; // Imported Button
+import { Button, Menu, Tooltip } from '@mui/material'; 
 import UserMenuItems from './UserMenuItems';
 import { useProfile } from '../../../Data/ProfileContext';
 import SearchBox from './SearchBox';
@@ -130,6 +130,8 @@ const NavBar: React.FC = () => {
   const [isAddListingDialogOpen, setIsListingDialogOpen] = React.useState(false)
   const location = useLocation().pathname
   const navigate = useNavigate()
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(false);
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -138,9 +140,6 @@ const NavBar: React.FC = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -187,26 +186,40 @@ const NavBar: React.FC = () => {
 
           {/* Search Box */}
           {location === "/dashboard" ? (
-            <Box className="flex-1 flex justify-center">
-              <Box className=" flex justify-between">
-                <Box className="min-w-[600px]">
+          <Box 
+            className="flex-1 flex justify-center mx-1 md:mx-3" 
+          >
+            <Box 
+            className="flex items-center w-full max-w-[90%] lg:max-w-[800px]" 
+            >
+              <Box className="flex-grow min-w-0">
                   <SearchBox />
-                </Box>
-                <Button
-                  startIcon={<AddIcon />}
-                  variant="outlined"
-                  color='inherit'
-                  onClick={() => setIsListingDialogOpen(true)}
-                  sx={{
-                    ml: 3,
-                    display: { xs: 'none', sm: 'inline-flex' }
-                  }}
-                >
-                  Add Listing
-                </Button>
               </Box>
+              <Button
+                startIcon={<AddIcon />}
+                variant="outlined"
+                color='inherit'
+                onClick={() => setIsListingDialogOpen(true)}
+                // KEY CHANGE: ml-3 for margin, hidden for xs, sm:inline-flex for small+
+                className="ml-3 hidden sm:inline-flex" 
+              >
+                Add Listing
+              </Button>
+
+              <IconButton
+                color="inherit"
+                aria-label="Add Listing"
+                onClick={() => setIsListingDialogOpen(true)}
+                className="ml-1 sm:hidden" 
+              >
+                <AddIcon />
+              </IconButton>
+
             </Box>
-          ) : <Box sx={{ flexGrow: 1 }} />}
+          </Box>
+          ) : (
+          <Box sx={{ flexGrow: 1 }} />
+          )}
 
 
           {/* User Avatar (Right) */}
@@ -232,6 +245,7 @@ const NavBar: React.FC = () => {
               horizontal: 'right',
             }}
             open={Boolean(anchorElUser)}
+            onClick={handleCloseUserMenu}
             onClose={handleCloseUserMenu}
           >
             <UserMenuItems />
@@ -259,7 +273,8 @@ const NavBar: React.FC = () => {
         <List>
           {drawerData.map((element) => (
             <ListItem key={element.text} disablePadding>
-              <ListItemButton onClick={() => navigate(element.link)}>
+              <ListItemButton onClick={() => { navigate(element.link) 
+                                               handleDrawerClose()} }>
                 <ListItemIcon>
                   {element.icon}
                 </ListItemIcon>
