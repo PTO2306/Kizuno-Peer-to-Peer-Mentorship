@@ -1,6 +1,9 @@
 import React from "react";  
-import { Card, CardActionArea, CardContent, Typography, Box, Dialog, DialogTitle, DialogContent, Avatar, IconButton, DialogActions, Button } from '@mui/material';
+import { Card, CardActionArea, CardContent, Typography, Box, Dialog, DialogTitle, DialogContent, Avatar, IconButton, DialogActions, Button, Stack } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import SkillLevelChip from "../Chips/SkillLevelChips";
+import AvailabilityChip from "../Chips/AvailabilityChips";
+import ModeChip from "../Chips/ModeChips";
 
 // External props needed to render a single class card
 interface ListingCardProps {
@@ -9,9 +12,12 @@ interface ListingCardProps {
   mentor: string; 
   subtitle: string;
   desc: string;
+  skill: string;
+  availability: string;
+  mode: string;
 }
 
-const ListingCard: React.FC<ListingCardProps> = ({ avatar, title, mentor, subtitle, desc }) => {
+const ListingCard: React.FC<ListingCardProps> = ({ avatar, title, mentor, subtitle, desc, skill, availability, mode }) => {
   const [open, setOpen] = React.useState(false);
 
   const handleClick = () => {
@@ -51,10 +57,14 @@ const ListingCard: React.FC<ListingCardProps> = ({ avatar, title, mentor, subtit
               </Typography>
             </div>
           </div>
-
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {subtitle}
           </Typography>
+          <Stack direction="row" spacing={1} alignItems="center" justifyContent="center" sx={{ px: 2, pb: 1, flexWrap: 'wrap', mt: 2 }}>
+            <SkillLevelChip skill={skill} />
+            <AvailabilityChip availability={availability} />
+            <ModeChip mode={mode} />
+          </Stack>
         </CardContent>
       </CardActionArea>
     </Card>
