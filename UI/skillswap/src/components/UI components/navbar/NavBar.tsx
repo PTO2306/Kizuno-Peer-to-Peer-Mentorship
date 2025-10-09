@@ -51,7 +51,7 @@ const drawerData: DrawerItem[] = [
     text: 'Leaderboard',
     icon: <LeaderboardIcon />,
     link: "/leaderboard"
-   } ,{
+  } ,{
     text: 'My Listings',
     icon: <ListAltIcon />,
     link: "/my-listings"
