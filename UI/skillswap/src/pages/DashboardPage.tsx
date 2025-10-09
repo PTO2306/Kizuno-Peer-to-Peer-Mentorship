@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Box , Button, ButtonGroup, Typography, Paper} from '@mui/material';
+import React, { useState } from 'react';
+import { Box , Button, ButtonGroup, Typography, Paper, Dialog, DialogContent, DialogTitle, IconButton} from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ListingCard from '../components/UI components/card/ListingCard';
 
@@ -79,6 +79,7 @@ const categoryButtons = categoryData.map(cat => (
 ));
 
     return (
+        <>
         <Box className="flex flex-col items-center w-full min-h-screen py-10 px-4">
             <Paper className="w-full max-w-7xl flex flex-col md:flex-row md:justify-between p-2 items-center gap-2">
                 <Box className="hidden md:flex flex-grow-0 gap-1 overflow-x-auto w-full md:w-auto">
@@ -174,7 +175,7 @@ const categoryButtons = categoryData.map(cat => (
                 </Dialog>
             </Paper>
             <Box className = "flex flex-wrap gap-4 justify-between py-4 max-w-7xl">
-             {exampleData.map((item, index) => (
+            {exampleData.map((item, index) => (
                 <ListingCard
                     key={`${item.title}-${index}`}
                     avatar={item.avatar}
