@@ -9,21 +9,15 @@ interface ModeChipProps {
 
 const bgByMode: Record<Mode, string> = {
   Online: '#E3FAFF',
-  'In Person': '#E1FFDB',
+  'In Person': '#FEFFBA',
   Hybrid: '#FBEBFF'
 }
 
 const borderByMode: Record<Mode, string> = {
   Online: '#B0F1FF',
-  'In Person': '#B7FFA9',
+  'In Person': '#E6E85F',
   Hybrid: '#F6D2FF'
 };
-
-const shadowByMode: Record<Mode, string> = {
-  Online: '#B0F1FF',
-  'In Person': '#B7FFA9',
-  Hybrid: '#F6D2FF'
-}
 
 const ModeChip: React.FC<ModeChipProps> = ({ mode }) => {
   return (
@@ -38,7 +32,6 @@ const ModeChip: React.FC<ModeChipProps> = ({ mode }) => {
         backgroundColor: bgByMode[mode],
         backdropFilter: 'blur(6px)',
         border: `1px solid ${borderByMode[mode]}`,
-        boxShadow: `0px 2px 4px ${shadowByMode[mode]}`
       }}
     />
   );

@@ -7,33 +7,6 @@ interface AvailabilityChipProps {
   availability: string
 }
 
-const bgByAvailability: Record<Availability, string> = {
-  Anytime: '',
-  Weekdays: '',
-  Weekends: '',
-  Evenings: '',
-  Mornings: '',
-  Afternoons: '',
-}
-
-const borderByAvailability: Record<Availability, string> = {
-  Anytime: '',
-  Weekdays: '',
-  Weekends: '',
-  Evenings: '',
-  Mornings: '',
-  Afternoons: '',
-};
-
-const shadowByAvailability: Record<Availability, string> = {
-  Anytime: '',
-  Weekdays: '',
-  Weekends: '',
-  Evenings: '',
-  Mornings: '',
-  Afternoons: '',
-}
-
 const AvailabilityChip: React.FC<AvailabilityChipProps> = ({ availability }) => {
   return (
     <Chip
@@ -44,10 +17,9 @@ const AvailabilityChip: React.FC<AvailabilityChipProps> = ({ availability }) => 
         borderRadius: 9999, 
         fontWeight: 600, 
         px: 0.5,
-        backgroundColor: bgByAvailability[Availability],
+        backgroundColor: '#E1FFDB' ,
         backdropFilter: 'blur(6px)',
-        border: `1px solid ${borderByAvailability[Availability]}`,
-        boxShadow: `0px 2px 4px ${shadowByAvailability[Availability]}`
+        border: '1px solid #B7FFA9' ,
       }}
     />
   );

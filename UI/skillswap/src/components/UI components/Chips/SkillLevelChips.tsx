@@ -21,13 +21,6 @@ const borderByLevel: Record<SkillLevel, string> = {
   Expert: '#8B5CF633',
 };
 
-const shadowByLevel: Record<SkillLevel, string> = {
-  Beginner: '#22C55E33',
-  Intermediate: '#F59E0B33',
-  Advanced: '#3B82F633',
-  Expert: '#8B5CF633',
-}
-
 const SkillLevelChip: React.FC<SkillLevelChipProps> = ({ skill }) => {
 
   return (
@@ -43,7 +36,6 @@ const SkillLevelChip: React.FC<SkillLevelChipProps> = ({ skill }) => {
         backgroundColor: bgByLevel[skill],
         backdropFilter: 'blur(6px)',
         border: `1px solid ${borderByLevel[skill]}`,
-        boxShadow: `0px 2px 4px ${shadowByLevel[skill]}`
       }}
     />
   );
