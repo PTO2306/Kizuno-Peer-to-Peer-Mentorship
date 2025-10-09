@@ -11,7 +11,7 @@ return (
         {/* Text */}
         <div className="text-center md:text-left">
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-violet-600 to-purple-700 bg-clip-text text-transparent leading-tight">
-            Skill Swap
+            Kizuno
         </h1>
         <span className="px-4 py-2 bg-violet-100 text-violet-700 rounded-full text-sm font-medium">
             Learn anything, one conversation at a time

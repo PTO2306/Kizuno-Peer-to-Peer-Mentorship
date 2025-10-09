@@ -181,7 +181,7 @@ const NavBar: React.FC = () => {
               mr: 3
             }}
           >
-            Skill Jam
+            Kizuno
           </Typography>
 
           {/* Search Box */}
