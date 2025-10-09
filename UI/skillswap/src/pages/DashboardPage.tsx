@@ -34,15 +34,15 @@ availability: 'Evenings',
 mode: 'Online'
 },
 {
-    avatar: '',
-    title: 'Astronomy Hobby Advice',
-    mentor: 'Tiago #DobsonianPower',
-    subtitle: "My passion is astronomy and I'm happy to give anyone advice who wants to start stargazing",
-    desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.',
-    skill: 'Advanced',
-    availability: 'Mornings',
-    mode: 'Online'
-    }
+avatar: '',
+title: 'Astronomy Hobby Advice',
+mentor: 'Tiago #DobsonianPower',
+subtitle: "My passion is astronomy and I'm happy to give anyone advice who wants to start stargazing",
+desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.',
+skill: 'Advanced',
+availability: 'Mornings',
+mode: 'Online'
+}
 ]
 
 // For later to have dynamic categories as filters
@@ -53,8 +53,17 @@ catergoryData: string[]
 const categoryData = ["All", "Coding", "Gardening", "Marketing", "Gaming", "Music"]
 
 const DashboardPage = () => {
-const [category, setCategory] = useState("All")
-const [userType, setUserType] = useState("Learning")
+    const [category, setCategory] = useState("All")
+    const [userType, setUserType] = useState("Learning")
+    const [isFilterDialogOpen, setIsFilterDialogOpen] = React.useState(false);
+
+    const handleOpenFilterDialog = () => {
+        setIsFilterDialogOpen(true);
+    };
+
+    const handleCloseFilterDialog = () => {
+        setIsFilterDialogOpen(false);
+    };
 
 
 const categoryButtons = categoryData.map(cat => (
@@ -69,33 +78,39 @@ const categoryButtons = categoryData.map(cat => (
     </Button>
 ));
 
-return (
-    <>
-    <Box className="flex flex-col items-center w-full min-h-screen py-10 px-4">
-        <Paper className="w-full max-w-7xl flex flex-col md:flex-row md:justify-between md:items-center p-2 items-center gap-2">
-            <Box className="flex gap-2 overflow-x-auto">
-                {categoryButtons}
-            </Box>
-            <Box className="flex items-center gap-4">
-                <Typography 
-                    variant="caption" 
-                    color="text.secondary" 
-                    className="uppercase font-semibold mt-1"
-                >
-                    Dashboard View:
-                </Typography>
+    return (
+        <Box className="flex flex-col items-center w-full min-h-screen py-10 px-4">
+            <Paper className="w-full max-w-7xl flex flex-col md:flex-row md:justify-between p-2 items-center gap-2">
+                <Box className="hidden md:flex flex-grow-0 gap-1 overflow-x-auto w-full md:w-auto">
+                    {categoryButtons}
+                </Box>
+                <Box className="flex items-center gap-4 w-full justify-center md:w-auto md:justify-end">
+                    {/* Dashboard View Label */}
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        className="uppercase font-semibold mt-1 text-xs sm:text-sm align-middle" 
+                    >
+                        Dashboard View:
+                    </Typography>
 
-                    
-                    <ButtonGroup variant="outlined" aria-label="Dashboard View Selector">
-                        <Button 
-                            variant={userType === "Learning" ? "contained" : "outlined"} 
+                    {/* View Selector Buttons */}
+                    <ButtonGroup
+                        variant="outlined"
+                        aria-label="Dashboard View Selector"
+                        className="flex-shrink-0"
+                    >
+                        <Button
+                            variant={userType === "Learning" ? "contained" : "outlined"}
                             onClick={() => setUserType("Learning")}
+                            className="text-xs sm:text-sm" 
                         >
                             Learning
                         </Button>
-                        <Button 
-                            variant={userType === "Teaching" ? "contained" : "outlined"} 
+                        <Button
+                            variant={userType === "Teaching" ? "contained" : "outlined"}
                             onClick={() => setUserType("Teaching")}
+                            className="text-xs sm:text-sm" 
                         >
                             Teaching
                         </Button>
@@ -107,10 +122,59 @@ return (
                     >
                     Filters
                     </Button>
-            </Box>
-        </Paper>
-        <Box className = "flex flex-wrap gap-4 justify-between py-4 max-w-7xl">
-            {exampleData.map((item, index) => (
+                    
+                    {/* Filters Button */}
+                    <Button
+                        variant="contained"
+                        startIcon={<FilterListIcon />}
+                        size='small'
+                        className="text-xs sm:text-sm" 
+                        onClick={handleOpenFilterDialog}
+                    >
+                        Filters
+                    </Button>
+                </Box>
+
+                {/* Filter Dialog */}
+                <Dialog 
+                    open={isFilterDialogOpen} 
+                    onClose={handleCloseFilterDialog}
+                    fullScreen
+                    sx={{
+                        display: { xs: 'block', md: 'none' },
+                        '& .MuiDialog-container': {
+                            '@media (min-width: 900px)': {
+                                alignItems: 'flex-start',
+                                paddingTop: '5vh',
+                            },
+                        },
+                        '& .MuiDialog-paper': {
+                            '@media (min-width: 900px)': {
+                                maxWidth: '400px',
+                                height: 'auto',
+                                maxHeight: '80vh',
+                                borderRadius: '8px',
+                            },
+                        },
+                    }}
+                >
+                    <DialogTitle>
+                        <Box className="flex justify-between items-center">
+                            <Typography variant="h6">Filter Categories</Typography>
+                            <IconButton onClick={handleCloseFilterDialog}>
+                                <FilterListIcon />
+                            </IconButton>
+                        </Box>
+                    </DialogTitle>
+                    <DialogContent dividers>
+                        <Box className="flex flex-wrap gap-2 justify-center">
+                            {categoryButtons}
+                        </Box>
+                    </DialogContent>
+                </Dialog>
+            </Paper>
+            <Box className = "flex flex-wrap gap-4 justify-between py-4 max-w-7xl">
+             {exampleData.map((item, index) => (
                 <ListingCard
                     key={`${item.title}-${index}`}
                     avatar={item.avatar}
@@ -123,8 +187,8 @@ return (
                     availability={item.availability}
                 />
             ))}
+            </Box>
         </Box>
-    </Box>
     </>
 );
 };
