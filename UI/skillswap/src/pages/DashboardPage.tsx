@@ -11,7 +11,7 @@ subtitle: 'Brush up on your interview skills with an experienced SWE',
 desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.',
 skill: 'Beginner',
 availability: 'Weekends',
-mode: 'Hybrid'
+mode: 'In Person'
 },
 {
 avatar: '',
@@ -19,8 +19,8 @@ title: 'Insurance advice',
 mentor: 'Chad Sharrock',
 subtitle: 'Chat with an experienced and passionate insurance broker about your options',
 desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.',
-skill: 'Beginner',
-availability: 'Weekends',
+skill: 'Intermediate',
+availability: 'Weekdays',
 mode: 'Hybrid'
 },
 {
@@ -29,9 +29,9 @@ title: 'ADHD Coaching',
 mentor: 'Natalia Berghoff',
 subtitle: 'Happy to have a chat about ADHD and daily challenges!',
 desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.',
-skill: 'Beginner',
-availability: 'Weekends',
-mode: 'Hybrid'
+skill: 'Expert',
+availability: 'Evenings',
+mode: 'Online'
 },
 {
     avatar: '',
@@ -39,9 +39,9 @@ mode: 'Hybrid'
     mentor: 'Tiago #DobsonianPower',
     subtitle: "My passion is astronomy and I'm happy to give anyone advice who wants to start stargazing",
     desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.',
-    skill: 'Beginner',
-    availability: 'Weekends',
-    mode: 'Hybrid'
+    skill: 'Advanced',
+    availability: 'Mornings',
+    mode: 'Online'
     }
 ]
 

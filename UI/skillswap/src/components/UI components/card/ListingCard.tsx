@@ -1,9 +1,9 @@
 import React from "react";  
 import { Card, CardActionArea, CardContent, Typography, Box, Dialog, DialogTitle, DialogContent, Avatar, IconButton, DialogActions, Button, Stack } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import SkillLevelChip from "../Chips/SkillLevelChips";
-import AvailabilityChip from "../Chips/AvailabilityChips";
-import ModeChip from "../Chips/ModeChips";
+import SkillLevelChip, { type SkillLevel } from "../chips/SkillLevelChips";
+import AvailabilityChip from "../chips/AvailabilityChips";
+import ModeChip from "../chips/ModeChips";
 
 // External props needed to render a single class card
 interface ListingCardProps {
@@ -12,7 +12,7 @@ interface ListingCardProps {
   mentor: string; 
   subtitle: string;
   desc: string;
-  skill: string;
+  skill: SkillLevel;
   availability: string;
   mode: string;
 }
