@@ -75,7 +75,7 @@ public static class ProfileEndpoints
       if (existing)
          return TypedResults.BadRequest("Profile already exists");
 
-      var profile = new UserProfile
+      var profile = new UserProfileModel
       {
          UserId = userIdParsed,
          DisplayName = form.DisplayName,

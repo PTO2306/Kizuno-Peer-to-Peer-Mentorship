@@ -38,8 +38,10 @@ export interface TagsModel {
 
 export interface ListingModel {
   id?: string;
-  userId?: string;
+  displayName: string;
+  profilePictureUrl?: string;
   title: string;
+  subtitle?: string;
   description?: string;
   type: ListingType;
   skillLevel?: SkillLevel;
@@ -48,6 +50,7 @@ export interface ListingModel {
   tags: TagsModel[];
   createdAt?: string;
   updatedAt?: string;
+  isOwner: boolean
 }
 
 

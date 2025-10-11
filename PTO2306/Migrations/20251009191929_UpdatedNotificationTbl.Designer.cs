@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PTO2306.Data;
@@ -11,9 +12,11 @@ using PTO2306.Data;
 namespace PTO2306.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251009191929_UpdatedNotificationTbl")]
+    partial class UpdatedNotificationTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,9 +46,6 @@ namespace PTO2306.Migrations
                     b.Property<int?>("SkillLevel")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Subtitle")
-                        .HasColumnType("text");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -60,8 +60,6 @@ namespace PTO2306.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Listings");
                 });
@@ -262,17 +260,6 @@ namespace PTO2306.Migrations
                     b.HasIndex("SkillId");
 
                     b.ToTable("UserSkills");
-                });
-
-            modelBuilder.Entity("PTO2306.Data.Models.ListingModel", b =>
-                {
-                    b.HasOne("PTO2306.Data.Models.UserModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PTO2306.Data.Models.ListingTagsModel", b =>

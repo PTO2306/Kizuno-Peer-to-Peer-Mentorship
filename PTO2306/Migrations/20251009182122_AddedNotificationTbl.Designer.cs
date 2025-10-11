@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PTO2306.Data;
@@ -11,9 +12,11 @@ using PTO2306.Data;
 namespace PTO2306.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251009182122_AddedNotificationTbl")]
+    partial class AddedNotificationTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,9 +46,6 @@ namespace PTO2306.Migrations
                     b.Property<int?>("SkillLevel")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Subtitle")
-                        .HasColumnType("text");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -60,8 +60,6 @@ namespace PTO2306.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Listings");
                 });
@@ -106,8 +104,6 @@ namespace PTO2306.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("SenderId");
 
                     b.ToTable("Notifications");
                 });
@@ -264,17 +260,6 @@ namespace PTO2306.Migrations
                     b.ToTable("UserSkills");
                 });
 
-            modelBuilder.Entity("PTO2306.Data.Models.ListingModel", b =>
-                {
-                    b.HasOne("PTO2306.Data.Models.UserModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("PTO2306.Data.Models.ListingTagsModel", b =>
                 {
                     b.HasOne("PTO2306.Data.Models.ListingModel", "Listing")
@@ -292,17 +277,6 @@ namespace PTO2306.Migrations
                     b.Navigation("Listing");
 
                     b.Navigation("Tag");
-                });
-
-            modelBuilder.Entity("PTO2306.Data.Models.NotificationModel", b =>
-                {
-                    b.HasOne("PTO2306.Data.Models.UserModel", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("PTO2306.Data.Models.RefreshTokenModel", b =>

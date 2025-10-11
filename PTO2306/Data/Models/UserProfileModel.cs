@@ -1,6 +1,6 @@
 namespace PTO2306.Data.Models;
 
-public class UserProfile
+public class UserProfileModel
 {
     public Guid UserId { get; set; }
     public UserModel User { get; set; } = null!;

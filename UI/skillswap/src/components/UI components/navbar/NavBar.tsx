@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -19,7 +19,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Avatar from '@mui/material/Avatar';
-import { Button, Menu, Tooltip } from '@mui/material'; 
+import { Button, Menu, Tooltip } from '@mui/material';
 import UserMenuItems from './UserMenuItems';
 import { useProfile } from '../../../Data/ProfileContext';
 import SearchBox from './SearchBox';
@@ -30,6 +30,7 @@ import NotificationBell from './NotificationBell';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router';
+import { useSignalR } from '../../../Data/SignalRContext';
 
 
 type DrawerItem = {
@@ -44,14 +45,15 @@ const drawerData: DrawerItem[] = [
     icon: <HomeIcon />,
     link: "/dashboard"
   },
-  { text: "Upcoming sessions", 
+  {
+    text: "Upcoming sessions",
     icon: <CalendarMonthIcon />,
     link: "/upcoming-sessions"
   }, {
     text: 'Leaderboard',
     icon: <LeaderboardIcon />,
     link: "/leaderboard"
-  } ,{
+  }, {
     text: 'My Listings',
     icon: <ListAltIcon />,
     link: "/my-listings"
@@ -126,12 +128,17 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const NavBar: React.FC = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { profile } = useProfile();
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const [isAddListingDialogOpen, setIsListingDialogOpen] = React.useState(false)
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const [isAddListingDialogOpen, setIsListingDialogOpen] = useState(false)
   const location = useLocation().pathname
   const navigate = useNavigate()
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const { getNotifications } = useSignalR();
+
+  useEffect(() => {
+    getNotifications();
+  }, []);
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -185,15 +192,14 @@ const NavBar: React.FC = () => {
           </Typography>
 
           {/* Search Box */}
-          {location === "/dashboard" ? (
-          <Box 
-            className="flex-1 flex justify-center mx-1 md:mx-3" 
+          <Box
+            className="flex-1 flex justify-center mx-1 md:mx-3"
           >
-            <Box 
-            className="flex items-center w-full max-w-[90%] lg:max-w-[800px]" 
+            <Box
+              className="flex items-center w-full max-w-[90%] lg:max-w-[800px]"
             >
               <Box className="flex-grow min-w-0">
-                  <SearchBox />
+                {location === '/dashboard' && <SearchBox />}
               </Box>
               <Button
                 startIcon={<AddIcon />}
@@ -201,26 +207,22 @@ const NavBar: React.FC = () => {
                 color='inherit'
                 onClick={() => setIsListingDialogOpen(true)}
                 // KEY CHANGE: ml-3 for margin, hidden for xs, sm:inline-flex for small+
-                className="ml-3 hidden sm:inline-flex" 
+                className="ml-3 hidden sm:inline-flex"
               >
-                Add Listing
+                Create Listing
               </Button>
 
               <IconButton
                 color="inherit"
-                aria-label="Add Listing"
+                aria-label="Create Listing"
                 onClick={() => setIsListingDialogOpen(true)}
-                className="ml-1 sm:hidden" 
+                className="ml-1 sm:hidden"
               >
                 <AddIcon />
               </IconButton>
 
             </Box>
           </Box>
-          ) : (
-          <Box sx={{ flexGrow: 1 }} />
-          )}
-
 
           {/* User Avatar (Right) */}
           <NotificationBell />
@@ -273,8 +275,10 @@ const NavBar: React.FC = () => {
         <List>
           {drawerData.map((element) => (
             <ListItem key={element.text} disablePadding>
-              <ListItemButton onClick={() => { navigate(element.link) 
-                                               handleDrawerClose()} }>
+              <ListItemButton onClick={() => {
+                navigate(element.link)
+                handleDrawerClose()
+              }}>
                 <ListItemIcon>
                   {element.icon}
                 </ListItemIcon>
@@ -285,7 +289,6 @@ const NavBar: React.FC = () => {
         </List>
       </Drawer>
       <Main open={open}>
-        <DrawerHeader />
       </Main>
     </Box>
   );

@@ -9,5 +9,5 @@ public class UserModel
     public string? VerificationToken { get; set; }
     public DateTime? VerifiedAt { get; set; }
     
-    public UserProfile? UserProfile { get; set; }
+    public UserProfileModel? UserProfile { get; set; }
 }

@@ -13,18 +13,21 @@ import ProfilePage from './pages/ProfilePage';
 import OnboardingPage from './pages/OnboardingPage';
 import { ListingProvider } from './Data/ListingContext';
 import MyListingPage from './pages/MyListingPage';
+import { SignalRProvider } from './Data/SignalRContext';
 
 function App() {
   return (
     <NotificationProvider>
       <AuthProvider>
-        <ProfileProvider>
-          <ListingProvider>
-            <BrowserRouter>
-              <AppContent />
-            </BrowserRouter>
-          </ListingProvider>
-        </ProfileProvider>
+        <SignalRProvider>
+          <ProfileProvider>
+            <ListingProvider>
+              <BrowserRouter>
+                <AppContent />
+              </BrowserRouter>
+            </ListingProvider>
+          </ProfileProvider>
+        </SignalRProvider>
       </AuthProvider>
     </NotificationProvider>
   );

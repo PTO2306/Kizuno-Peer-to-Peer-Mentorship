@@ -22,6 +22,7 @@ import { useListing } from '../../../Data/ListingContext';
 
 export interface ListingForm {
   title: string;
+  subtitle?: string;
   description: string;
   type: ListingType;
   skillLevel?: SkillLevel;
@@ -42,7 +43,8 @@ const tagsSchema = z.object({
 });
 
 const listingSchema = z.object({
-  title: z.string().min(5, 'Title must be at least 5 characters').max(100),
+  title: z.string().min(5, 'Title must be at least 5 characters').max(80),
+  subtitle: z.string().max(100).optional(),
   description: z.string().min(20, 'Description must be at least 20 characters').max(1000),
   type: z.enum(options.listingTypes),
   skillLevel: z.enum(options.skillLevels).optional(),
@@ -56,11 +58,12 @@ type ListingFormType = z.infer<typeof listingSchema>;
 interface AddListingDialogProps {
   open: boolean;
   onClose: () => void;
+  listing?: ListingModel;
 }
 
-const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose }) => {
+const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose, listing }) => {
   const { showNotification } = useNotification();
-  const { createListing } = useListing();
+  const { createListing, updateListing } = useListing();
   const [loading, setLoading] = useState(false);
   const [tagInput, setTagInput] = useState("");
 
@@ -70,6 +73,7 @@ const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose }) =>
       mode: 'onChange',
       defaultValues: {
         title: '',
+        subtitle: undefined,
         description: '',
         type: 'Mentor',
         skillLevel: undefined,
@@ -82,29 +86,45 @@ const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose }) =>
   const typeValue = watch('type');
   const tags = useWatch({ control, name: 'tags' }) ?? [];
 
-
   useEffect(() => {
-    if (open) reset();
-  }, [open, reset]);
+    if (open) {
+      if (listing) {
+        reset({
+          title: listing.title,
+          subtitle: listing.subtitle ?? "",
+          description: listing.description,
+          type: listing.type,
+          skillLevel: listing.skillLevel,
+          availability: listing.availability,
+          mode: listing.mode,
+          tags: listing.tags || [],
+        });
+      } else {
+        reset();
+      }
+    }
+  }, [open, listing, reset]);
 
   const onSubmit = async (data: ListingFormType) => {
     setLoading(true);
     try {
+      const listingData = data as ListingModel;
 
-      const listing = data as ListingModel;
-      console.log(listing);
-
-      const response = await createListing(listing);
+      const response = listing
+        ? await updateListing(listing.id!, listingData)
+        : await createListing(listingData);
 
       if (response.success) {
-        showNotification('Listing created successfully!', 'success');
+        showNotification(
+          listing ? "Listing updated successfully!" : "Listing created successfully!",
+          "success"
+        );
         onClose();
       }
-
     } catch (error: any) {
       showNotification(
-        error.response?.data?.message || 'Failed to create listing. Please try again.',
-        'error'
+        error.response?.data?.message || "Operation failed. Please try again.",
+        "error"
       );
     } finally {
       setLoading(false);
@@ -167,7 +187,22 @@ const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose }) =>
                 label="Listing Title"
                 fullWidth
                 error={!!errors.title}
-                helperText={errors.title?.message || `${field.value.length}/100`}
+                helperText={errors.title?.message || `${field.value.length}/80`}
+              />
+            )}
+          />
+
+          {/* Subtitle Field */}
+          <Controller
+            name="subtitle"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Listing Subtitle"
+                fullWidth
+                error={!!errors.subtitle}
+                helperText={errors.subtitle?.message || `${field?.value?.length || 0}/100`}
               />
             )}
           />
@@ -277,11 +312,20 @@ const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose }) =>
         </DialogContent>
 
         <DialogActions className="p-4">
-          <Button variant="outlined" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button variant="outlined" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
           <Button type="submit" variant="contained" disabled={!isValid || loading}>
-            {loading ? <CircularProgress size={24} /> : 'Create Listing'}
+            {loading ? (
+              <CircularProgress size={24} />
+            ) : listing ? (
+              "Update Listing"
+            ) : (
+              "Create Listing"
+            )}
           </Button>
         </DialogActions>
+
       </form>
     </Dialog>
   );

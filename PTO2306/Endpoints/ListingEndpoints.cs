@@ -38,15 +38,18 @@ public static class ListingEndpoints
             .Select(l => new ListingDto
             {
                 Id = l.Id,
-                UserId = l.UserId,
                 Title = l.Title,
+                Subtitle = l.Subtitle,
                 Description = l.Description,
+                DisplayName = l.User.UserProfile.DisplayName ?? "Unknown",
+                ProfilePictureUrl = l.User.UserProfile.ProfilePictureUrl,
                 Type = l.Type,
                 SkillLevel = l.SkillLevel,
                 Availability = l.Availability,
                 Mode = l.Mode,
                 CreatedAt = l.CreatedAt,
                 UpdatedAt = l.UpdatedAt,
+                IsOwner = true,
                 Tags = l.ListingTags.Select(lt => new TagDto
                 {
                     Id = lt.Tag.Id,
@@ -58,7 +61,7 @@ public static class ListingEndpoints
         return TypedResults.Ok(listings);
     }
 
-    private static async Task<Results<Ok<ListingDto>, BadRequest<string>>> CreateListing(
+    private static async Task<Results<Ok<ListingDto>, BadRequest<string>, NotFound<string>>> CreateListing(
         AppDbContext db,
         HttpContext http,
         [FromBody] ListingDto dto
@@ -66,12 +69,17 @@ public static class ListingEndpoints
     {
         var userId = http.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         if (userId == null) return TypedResults.BadRequest("User not authenticated.");
-
+        
+        var user = db.Users.Include(u => u.UserProfile).FirstOrDefault(u => u.Id == Guid.Parse(userId));
+        if (user == null) return TypedResults.NotFound("User not found.");
+        
         var listing = new ListingModel
         {
             Id = Guid.NewGuid(),
             UserId = Guid.Parse(userId),
+            User = user,
             Title = dto.Title,
+            Subtitle = dto.Subtitle,
             Description = dto.Description,
             Type = dto.Type,
             SkillLevel = dto.SkillLevel,
@@ -79,7 +87,7 @@ public static class ListingEndpoints
             Mode = dto.Mode,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            ListingTags = new List<ListingTags>()
+            ListingTags = new List<ListingTagsModel>()
         };
 
         if (dto.Tags.Any())
@@ -89,7 +97,7 @@ public static class ListingEndpoints
                 var tag = await db.Tags.FirstOrDefaultAsync(t => t.Name == tagDto.Name)
                           ?? new TagModel { Name = tagDto.Name };
 
-                listing.ListingTags.Add(new ListingTags
+                listing.ListingTags.Add(new ListingTagsModel
                 {
                     Listing = listing,
                     Tag = tag
@@ -103,8 +111,10 @@ public static class ListingEndpoints
         var result = new ListingDto
         {
             Id = listing.Id,
-            UserId = listing.UserId,
             Title = listing.Title,
+            Subtitle = listing.Subtitle,
+            DisplayName = user.UserProfile?.DisplayName ?? "Unknown",
+            ProfilePictureUrl = user.UserProfile?.ProfilePictureUrl,
             Description = listing.Description,
             Type = listing.Type,
             SkillLevel = listing.SkillLevel,
@@ -112,6 +122,7 @@ public static class ListingEndpoints
             Mode = listing.Mode,
             CreatedAt = listing.CreatedAt,
             UpdatedAt = listing.UpdatedAt,
+            IsOwner = true,
             Tags = listing.ListingTags.Select(lt => new TagDto
             {
                 Id = lt.Tag.Id,
@@ -132,6 +143,8 @@ public static class ListingEndpoints
         var userId = http.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         if (userId == null) return TypedResults.BadRequest("User not authenticated.");
         var listing = await db.Listings
+            .Include(l => l.User)
+                .ThenInclude(u => u.UserProfile)
             .Include(l => l.ListingTags)
                 .ThenInclude(lt => lt.Tag)
             .FirstOrDefaultAsync(l => l.Id == id && l.UserId == Guid.Parse(userId));
@@ -141,6 +154,7 @@ public static class ListingEndpoints
         listing.Title = dto.Title;
         listing.Description = dto.Description;
         listing.Type = dto.Type;
+        listing.Subtitle = dto.Subtitle;
         listing.SkillLevel = dto.SkillLevel;
         listing.Availability = dto.Availability;
         listing.Mode = dto.Mode;
@@ -155,7 +169,7 @@ public static class ListingEndpoints
                 var tag = await db.Tags.FirstOrDefaultAsync(t => t.Name == tagDto.Name)
                           ?? new TagModel { Name = tagDto.Name };
 
-                listing.ListingTags.Add(new ListingTags
+                listing.ListingTags.Add(new ListingTagsModel
                 {
                     Listing = listing,
                     Tag = tag
@@ -168,8 +182,10 @@ public static class ListingEndpoints
         var result = new ListingDto
         {
             Id = listing.Id,
-            UserId = listing.UserId,
-            Title = listing.Title,
+            Title = listing.Title, 
+            Subtitle = listing.Subtitle,
+            DisplayName = listing.User.UserProfile?.DisplayName ?? "Unknown",
+            ProfilePictureUrl = listing.User.UserProfile?.ProfilePictureUrl,
             Description = listing.Description,
             Type = listing.Type,
             SkillLevel = listing.SkillLevel,
@@ -177,6 +193,7 @@ public static class ListingEndpoints
             Mode = listing.Mode,
             CreatedAt = listing.CreatedAt,
             UpdatedAt = listing.UpdatedAt,
+            IsOwner = true,
             Tags = listing.ListingTags.Select(lt => new TagDto
             {
                 Id = lt.Tag.Id,
