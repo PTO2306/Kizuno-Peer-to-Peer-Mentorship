@@ -9,13 +9,13 @@ namespace PTO2306.Services;
 
 public interface INotificationService
 {
-    Task SendNotificationToUserAsync(Guid userId, Guid senderId, string message);
-    // Task SendNotificationToUsersAsync(IEnumerable<Guid> userIds, Guid senderId, string message);
+    Task SendNotificationToUserAsync(Guid recipientId, Guid senderId, string message);
+    Task SendNotificationToUsersAsync(List<Guid> recipientIds, Guid senderId, string message);
 }
 
 public class NotificationService(IHubContext<NotificationHub> hubContext, AppDbContext db) : INotificationService
 {
-    public async Task SendNotificationToUserAsync(Guid userId, Guid senderId, string message)
+    public async Task SendNotificationToUserAsync(Guid recipientId, Guid senderId, string message)
     {
         var sender = await db.Users
             .Include(userModel => userModel.UserProfile)
@@ -25,7 +25,7 @@ public class NotificationService(IHubContext<NotificationHub> hubContext, AppDbC
         NotificationModel notifModel = new ()
         {
             SenderId = senderId,
-            UserId = userId,
+            UserId = recipientId,
             Message = message,
             Sender = sender
         };
@@ -45,20 +45,53 @@ public class NotificationService(IHubContext<NotificationHub> hubContext, AppDbC
         };
         
         await hubContext.Clients
-            .Group($"user_{userId}")
+            .Group($"user_{recipientId}")
             .SendAsync("ReceiveNotification", dto);
     }
 
-    // public async Task SendNotificationToUsersAsync(IEnumerable<Guid> userIds, Guid senderId, string message)
-    // {
-    //     var groups = userIds.Select(id => $"user_{id}").ToList();
-    //     
-    //     await hubContext.Clients
-    //         .Groups(groups)
-    //         .SendAsync("ReceiveNotification", new
-    //         {
-    //             message,
-    //             timestamp = DateTime.UtcNow
-    //         });
-    // }
+    public async Task SendNotificationToUsersAsync(List<Guid> recipientIds, Guid senderId, string message)
+    {
+        var sender = await db.Users
+            .Include(u => u.UserProfile)
+            .FirstOrDefaultAsync(u => u.Id == senderId);
+
+        if (sender == null)
+            return;
+
+        var notifications = new List<NotificationModel>();
+        var notificationDtos = new List<NotificationDto>();
+
+        foreach (var userId in recipientIds)
+        {
+            var notifModel = new NotificationModel
+            {
+                SenderId = senderId,
+                UserId = userId,
+                Message = message,
+                Sender = sender
+            };
+
+            notifications.Add(notifModel);
+
+            notificationDtos.Add(new NotificationDto
+            {
+                Id = notifModel.Id,
+                SenderName = sender.UserProfile?.DisplayName ?? "Unknown",
+                ProfilePictureUrl = sender.UserProfile?.ProfilePictureUrl,
+                Message = notifModel.Message,
+                IsRead = notifModel.IsRead,
+                Timestamp = notifModel.Timestamp.ToString("O")
+            });
+        }
+
+        db.Notifications.AddRange(notifications);
+        await db.SaveChangesAsync();
+
+        foreach (var (userId, dto) in recipientIds.Zip(notificationDtos))
+        {
+            await hubContext.Clients
+                .Group($"user_{userId}")
+                .SendAsync("ReceiveNotification", dto);
+        }
+    }
 }

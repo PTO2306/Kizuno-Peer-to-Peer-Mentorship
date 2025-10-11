@@ -22,4 +22,5 @@ public class ListingDto
     public bool IsOwner  { get; set; }
 
     public List<TagDto> Tags { get; set; } = new();
+    public List<ConnectionRequestDto> ConnectionRequests { get; set; } = new();
 }

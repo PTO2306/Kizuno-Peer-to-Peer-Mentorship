@@ -50,4 +50,6 @@ public class ListingModel
     public Mode? Mode { get; set; }
     
     public UserModel User { get; set; }
+    public List<ConnectionRequestModel> ConnectionRequests { get; set; } = new();
+
 }
