@@ -31,6 +31,8 @@ export type Availability =
 
 export type Mode = 'Online' | 'InPerson' | 'Hybrid';
 
+export type RequestStatus = 'Pending' | 'Accepted' | 'Declined';
+
 export interface TagsModel {
   id?: string;
   name: string;
@@ -51,6 +53,25 @@ export interface ListingModel {
   createdAt?: string;
   updatedAt?: string;
   isOwner: boolean
+  connectionRequests?: ConnectionRequestModel[];
+}
+
+export interface ConnectionRequestModel {
+  listingId: string;
+  senderId: string;
+  displayName: string;
+  profilePictureUrl?: string;
+  status: RequestStatus;
+  message?: string;
+}
+
+export interface FetchListingsParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  type?: string;
+  tagNames?: string[];
+  reset?: boolean;
 }
 
 
