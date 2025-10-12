@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PTO2306.Data;
@@ -11,9 +12,11 @@ using PTO2306.Data;
 namespace PTO2306.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251009191929_UpdatedNotificationTbl")]
+    partial class UpdatedNotificationTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,33 +24,6 @@ namespace PTO2306.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("PTO2306.Data.Models.ConnectionRequestModel", b =>
-                {
-                    b.Property<Guid>("ListingId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("SenderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("RespondedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ListingId", "SenderId");
-
-                    b.HasIndex("SenderId");
-
-                    b.ToTable("ConnectionRequests");
-                });
 
             modelBuilder.Entity("PTO2306.Data.Models.ListingModel", b =>
                 {
@@ -70,9 +46,6 @@ namespace PTO2306.Migrations
                     b.Property<int?>("SkillLevel")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Subtitle")
-                        .HasColumnType("text");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
@@ -87,8 +60,6 @@ namespace PTO2306.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Listings");
                 });
@@ -291,36 +262,6 @@ namespace PTO2306.Migrations
                     b.ToTable("UserSkills");
                 });
 
-            modelBuilder.Entity("PTO2306.Data.Models.ConnectionRequestModel", b =>
-                {
-                    b.HasOne("PTO2306.Data.Models.ListingModel", "Listing")
-                        .WithMany("ConnectionRequests")
-                        .HasForeignKey("ListingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PTO2306.Data.Models.UserModel", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Listing");
-
-                    b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("PTO2306.Data.Models.ListingModel", b =>
-                {
-                    b.HasOne("PTO2306.Data.Models.UserModel", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("PTO2306.Data.Models.ListingTagsModel", b =>
                 {
                     b.HasOne("PTO2306.Data.Models.ListingModel", "Listing")
@@ -394,8 +335,6 @@ namespace PTO2306.Migrations
 
             modelBuilder.Entity("PTO2306.Data.Models.ListingModel", b =>
                 {
-                    b.Navigation("ConnectionRequests");
-
                     b.Navigation("ListingTags");
                 });
 

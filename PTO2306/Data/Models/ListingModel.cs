@@ -37,14 +37,19 @@ public class ListingModel
     public Guid UserId { get; set; }
 
     public required string Title { get; set; }
+    public string? Subtitle { get; set; }
     public string? Description { get; set; }
     public ListingType Type { get; set; } 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public List<ListingTags> ListingTags { get; set; } = new();
+    public List<ListingTagsModel> ListingTags { get; set; } = new();
 
     public SkillLevel? SkillLevel { get; set; }
     public Availability? Availability { get; set; }
     public Mode? Mode { get; set; }
+    
+    public UserModel User { get; set; }
+    public List<ConnectionRequestModel> ConnectionRequests { get; set; } = new();
+
 }

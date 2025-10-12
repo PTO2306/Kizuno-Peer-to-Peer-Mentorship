@@ -3,13 +3,24 @@ import { useAuth } from './AuthContext';
 import httpClient from './httpClient';
 import React from 'react';
 import { useNotification } from '../components/Notification';
-import type { ListingModel } from '../models/userModels';
+import type {
+  ConnectionRequestModel,
+  FetchListingsParams,
+  ListingModel,
+} from '../models/userModels';
 
 interface ListingContextType {
   userListings: ListingModel[];
+  searchListings: ListingModel[];
   loading: boolean;
   error: string | null;
-  fetchListings: () => Promise<void>;
+  fetchUserListings: () => Promise<void>;
+  fetchListings: (params: FetchListingsParams) => Promise<{
+    success: boolean;
+    data?: ListingModel[];
+    totalCount?: number;
+    hasMore?: boolean;
+  }>;
   createListing: (
     listingData: ListingModel
   ) => Promise<{ success: boolean; data?: ListingModel }>;
@@ -18,7 +29,13 @@ interface ListingContextType {
     listingData: ListingModel
   ) => Promise<{ success: boolean; data?: ListingModel }>;
   deleteListing: (id: string) => Promise<{ success: boolean }>;
-  clearListings: () => void;
+  clearUserListings: () => void;
+  sendConnectionRequest: (
+    data: ConnectionRequestModel
+  ) => Promise<{ success: boolean }>;
+  respondToConnectionRequest: (
+    data: ConnectionRequestModel
+  ) => Promise<{ success: boolean }>;
 }
 
 const ListingContext = createContext<ListingContextType | undefined>(undefined);
@@ -28,16 +45,66 @@ export const ListingProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { showNotification } = useNotification();
   const [userListings, setUserListings] = useState<ListingModel[]>([]);
+  const [searchListings, setSearchListings] = useState<ListingModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
 
-  const clearListings = () => {
+  const clearUserListings = () => {
     setUserListings([]);
     setError(null);
   };
 
-  const fetchListings = async () => {
+  const fetchListings = async ({
+    page = 1,
+    pageSize = 10,
+    search = '',
+    type,
+    tagNames = [],
+    reset = false,
+  }: FetchListingsParams) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const params: Record<string, any> = { page, pageSize };
+
+      if (search) params.search = search;
+      if (type) params.type = type;
+      if (tagNames.length > 0) params.tagNames = tagNames.join(',');
+
+      const response = await httpClient.get('/listings', { params });
+
+      if (response.status === 200) {
+        const fetchedListings = response.data.listings;
+
+        // if reset, replace; if not, append for pagination
+        setSearchListings((prev) =>
+          reset ? fetchedListings : [...prev, ...fetchedListings]
+        );
+
+        return {
+          success: true,
+          data: fetchedListings,
+          totalCount: response.data.totalCount,
+          hasMore: response.data.hasMore,
+        };
+      }
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || 'Failed to fetch listings';
+      setError(message);
+      showNotification(message, 'error');
+      console.error('Fetch listings error:', error);
+      return { success: false };
+    } finally {
+      setLoading(false);
+    }
+
+    return { success: false };
+  };
+
+  const fetchUserListings = async () => {
     setLoading(true);
     setError(null);
 
@@ -156,23 +223,66 @@ export const ListingProvider: React.FC<{ children: React.ReactNode }> = ({
     return { success: false };
   };
 
+  const sendConnectionRequest = async (data: ConnectionRequestModel) => {
+    try {
+      const response = await httpClient.post('/listing/request', data);
+      if (response.status === 200) {
+        showNotification('Mentorship request sent successfully!', 'success');
+        return { success: true };
+      }
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || 'Failed to send mentorship request';
+      showNotification(message, 'error');
+      return { success: false };
+    }
+    return { success: false };
+  };
+
+  const respondToConnectionRequest = async (data: ConnectionRequestModel) => {
+    try {
+      const response = await httpClient.put('/listing/request', data);
+      if (response.status === 200) {
+        showNotification(
+          data.status === 'Accepted'
+            ? 'Connection request accepted!'
+            : 'Connection request declined.',
+          'success'
+        );
+        // await fetchListings();
+        return { success: true };
+      }
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        `Failed to ${status.toLowerCase()} connection request`;
+      showNotification(message, 'error');
+      return { success: false };
+    }
+    return { success: false };
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
-      fetchListings();
+      fetchUserListings();
     } else {
-      clearListings();
+      clearUserListings();
     }
   }, [isAuthenticated]);
 
   const value: ListingContextType = {
     userListings: userListings,
+    searchListings: searchListings,
     loading,
     error,
+    fetchUserListings,
     fetchListings,
     createListing,
     updateListing,
     deleteListing,
-    clearListings,
+    clearUserListings,
+    sendConnectionRequest,
+    respondToConnectionRequest,
   };
 
   return React.createElement(ListingContext.Provider, { value }, children);

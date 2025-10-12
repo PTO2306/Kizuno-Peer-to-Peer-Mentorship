@@ -7,12 +7,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
    public DbSet<UserModel> Users { get; set; } 
    public DbSet<RefreshTokenModel> RefreshTokens { get; set; }
-   public DbSet<UserProfile> UserProfiles { get; set; }
+   public DbSet<UserProfileModel> UserProfiles { get; set; }
    public DbSet<UserSkill> UserSkills { get; set; }
    public DbSet<SkillModel> Skills { get; set; }
    public DbSet<TagModel> Tags { get; set; }
    public DbSet<ListingModel> Listings { get; set; }
-   public DbSet<ListingTags> ListingTags { get; set; }
+   public DbSet<ListingTagsModel> ListingTags { get; set; }
+   public DbSet<NotificationModel> Notifications { get; set; }
+   public DbSet<ConnectionRequestModel> ConnectionRequests { get; set; }
 
    protected override void OnModelCreating(ModelBuilder builder)
    {
@@ -24,16 +26,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
        builder.Entity<UserModel>()
            .HasOne(u => u.UserProfile)
            .WithOne(p => p.User)
-           .HasForeignKey<UserProfile>(p => p.UserId);
+           .HasForeignKey<UserProfileModel>(p => p.UserId);
 
-       builder.Entity<UserProfile>()
+       builder.Entity<UserProfileModel>()
            .HasKey(p => p.UserId);
 
        builder.Entity<UserSkill>()
            .HasKey(us => new { us.UserProfileId, us.SkillId });
        
        builder.Entity<UserSkill>()
-           .HasOne(us => us.UserProfile)
+           .HasOne(us => us.UserProfileModel)
            .WithMany(p => p.Skills)
            .HasForeignKey(us => us.UserProfileId);
 
@@ -46,15 +48,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
            .HasIndex(t => t.Name)
            .IsUnique();
        
-       builder.Entity<ListingTags>()
+       builder.Entity<ListingTagsModel>()
            .HasKey(lt => new { lt.ListingId, lt.TagId });
 
-       builder.Entity<ListingTags>()
+       builder.Entity<ListingTagsModel>()
            .HasOne(lt => lt.Listing)
            .WithMany(l => l.ListingTags)
            .HasForeignKey(lt => lt.ListingId);
 
-       builder.Entity<ListingTags>()
+       builder.Entity<ListingTagsModel>()
            .HasOne(lt => lt.Tag)
            .WithMany()
            .HasForeignKey(lt => lt.TagId);
@@ -62,5 +64,25 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
        builder.Entity<TagModel>()
            .HasIndex(t => t.Name)
            .IsUnique();
+
+       builder.Entity<NotificationModel>()
+           .HasOne<UserModel>(n => n.Sender)
+           .WithMany();
+
+       builder.Entity<ConnectionRequestModel>()
+           .HasKey(cr => new { cr.ListingId, cr.SenderId });
+       
+       builder.Entity<ConnectionRequestModel>()
+           .HasOne(cr => cr.Listing)
+           .WithMany(l => l.ConnectionRequests)
+           .HasForeignKey(cr => cr.ListingId)
+           .OnDelete(DeleteBehavior.Cascade);
+       
+       builder.Entity<ConnectionRequestModel>()
+           .HasOne(cr => cr.Sender)
+           .WithMany()
+           .HasForeignKey(cr => cr.SenderId)
+           .OnDelete(DeleteBehavior.Restrict);
+       
    }
 }

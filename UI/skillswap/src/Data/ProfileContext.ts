@@ -49,11 +49,11 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
       const errorMessage =
         error.response?.data?.message || 'Failed to fetch profile';
       setError(errorMessage);
-      showNotification(
-        error.response?.data?.message || 'Failed to load profile data',
-        'error'
-      );
-      console.error('Fetch profile error:', error);
+      // showNotification(
+      //   error.response?.data?.message || 'Failed to load profile data',
+      //   'error'
+      // );
+      // console.error('Fetch profile error:', error);
     } finally {
       setLoading(false);
     }

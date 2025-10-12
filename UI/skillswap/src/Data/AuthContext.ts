@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (response.status === 200) {
         setIsAuthenticated(true);
         setError(null);
-        showNotification('Welcome back!', 'success');
+        // showNotification('Welcome back!', 'success');
         localStorage.setItem('hadSession', 'true');
         return { success: true };
       }

@@ -43,6 +43,17 @@ public static class Configuration
                OnMessageReceived = context =>
                {
                   context.Token = context.Request.Cookies["accessToken"];
+
+                  if (!string.IsNullOrEmpty(context.Token)) return Task.CompletedTask;
+                  
+                  var accessToken = context.Request.Query["access_token"];
+                  var path = context.HttpContext.Request.Path;
+                    
+                  if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+                  {
+                     context.Token = accessToken;
+                  }
+
                   return Task.CompletedTask;
                }
             };
@@ -51,6 +62,8 @@ public static class Configuration
       builder.Services
          .AddEndpointsApiExplorer()
          .AddAuthorization();
+      
+      builder.Services.AddSignalR();
 
       builder.Services
          .Configure<JsonOptions>(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -75,6 +88,7 @@ public static class Configuration
       builder.Services.AddScoped<TokenProvider>();
       builder.Services.AddScoped<IPasswordHasher<UserModel>, PasswordHasher<UserModel>>();
       builder.Services.AddScoped<IEmailSender, MailService>();
+      builder.Services.AddScoped<INotificationService, NotificationService>();
    }
 
    public static void RegisterSwagger(this WebApplicationBuilder builder)
@@ -146,18 +160,17 @@ public static class Configuration
       app.MapUserEndpoints();
       app.MapProfileEndpoints();
       app.MapListingEndpoints();
+      app.MapNotificationEndpoints();
          
-      // Swagger UI
-      // if (app.Environment.IsDevelopment())
-      // {
-          app.UseMiddleware<SwaggerAuth>();
-          app.UseSwagger();
-          app.UseSwaggerUI(c =>
-          {
-             c.SwaggerEndpoint("/pto2306/swagger/v1/swagger.json", "PTO2306 API V1");
+      app.MapHub<NotificationHub>("/notificationHub");
+      
+      app.UseMiddleware<SwaggerAuth>();
+      app.UseSwagger();
+      app.UseSwaggerUI(c =>
+      {
+         c.SwaggerEndpoint("/pto2306/swagger/v1/swagger.json", "PTO2306 API V1");
 
-             c.RoutePrefix = "swagger";
-          });
-      // }
+         c.RoutePrefix = "swagger";
+      });
    }
 }
