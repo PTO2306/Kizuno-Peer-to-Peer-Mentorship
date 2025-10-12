@@ -8,7 +8,6 @@ import type { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
-import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -17,48 +16,29 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Avatar from '@mui/material/Avatar';
 import { Button, Menu, Tooltip } from '@mui/material';
 import UserMenuItems from './UserMenuItems';
 import { useProfile } from '../../../Data/ProfileContext';
-import SearchBox from './SearchBox';
 import AddIcon from '@mui/icons-material/Add';
-import { useLocation } from 'react-router';
 import AddListingDialog from '../addlistingdialog/AddListingDialog';
 import NotificationBell from './NotificationBell';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import HomeIcon from '@mui/icons-material/Home';
+import LogoutIcon from '@mui/icons-material/Logout';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import { useNavigate } from 'react-router';
 import { useSignalR } from '../../../Data/SignalRContext';
+import { useAuth } from '../../../Data/AuthContext';
 
 
 type DrawerItem = {
   text: string;
   icon: React.ReactElement;
-  link: string;
+  link?: string;
+  callback?: () => void;
 };
 
-const drawerData: DrawerItem[] = [
-  {
-    text: "Home",
-    icon: <HomeIcon />,
-    link: "/dashboard"
-  },
-  {
-    text: "Upcoming sessions",
-    icon: <CalendarMonthIcon />,
-    link: "/upcoming-sessions"
-  }, {
-    text: 'Leaderboard',
-    icon: <LeaderboardIcon />,
-    link: "/leaderboard"
-  }, {
-    text: 'My Listings',
-    icon: <ListAltIcon />,
-    link: "/my-listings"
-  }
-];
 
 // PRE-PACKAGED MUI STYLING
 
@@ -128,13 +108,37 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const NavBar: React.FC = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const { profile } = useProfile();
+  const { logout } = useAuth();
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [isAddListingDialogOpen, setIsListingDialogOpen] = useState(false)
-  const location = useLocation().pathname
   const navigate = useNavigate()
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const { getNotifications } = useSignalR();
+
+  const drawerData: DrawerItem[] = [
+    {
+      text: "Home",
+      icon: <HomeIcon />,
+      link: "/dashboard"
+    },
+    {
+      text: "Profile",
+      icon: <AccountBoxIcon />,
+      link: "/profile"
+    },
+    {
+      text: 'My Listings',
+      icon: <ListAltIcon />,
+      link: "/my-listings"
+    },
+    {
+      text: 'Logout',
+      icon: <LogoutIcon />,
+      callback: () => { logout() }
+    }
+
+  ];
 
   useEffect(() => {
     getNotifications();
@@ -161,111 +165,109 @@ const NavBar: React.FC = () => {
       <AddListingDialog open={isAddListingDialogOpen} onClose={() => setIsListingDialogOpen(false)} />
       <CssBaseline />
       <AppBar position="fixed" open={open}>
-        <Toolbar>
-          {/* Menu Icon */}
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-              open && { display: 'none' },
-            ]}
-          >
-            <MenuIcon />
-          </IconButton>
-
-          {/* App Title */}
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{
-              display: { xs: 'none', sm: 'block' },
-              mr: 3
-            }}
-          >
-            Kizuno
-          </Typography>
-
-          {/* Search Box */}
-          <Box
-            className="flex-1 flex justify-center mx-1 md:mx-3"
-          >
-            <Box
-              className="flex items-center w-full max-w-[90%] lg:max-w-[800px]"
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {/* LEFT SIDE */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {/* Menu Icon */}
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={[
+                { mr: 2 },
+                open && { display: 'none' },
+              ]}
             >
-              <Box className="flex-grow min-w-0">
-                {location === '/dashboard' && <SearchBox />}
-              </Box>
-              <Button
-                startIcon={<AddIcon />}
-                variant="outlined"
-                color='inherit'
-                onClick={() => setIsListingDialogOpen(true)}
-                // KEY CHANGE: ml-3 for margin, hidden for xs, sm:inline-flex for small+
-                className="ml-3 hidden sm:inline-flex"
-              >
-                Create Listing
-              </Button>
+              <MenuIcon />
+            </IconButton>
 
-              <IconButton
-                color="inherit"
-                aria-label="Create Listing"
-                onClick={() => setIsListingDialogOpen(true)}
-                className="ml-1 sm:hidden"
-              >
-                <AddIcon />
-              </IconButton>
-
-            </Box>
+            {/* App Title */}
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                display: { xs: 'none', sm: 'block' },
+                mr: 3,
+              }}
+            >
+              Kizuno
+            </Typography>
           </Box>
 
-          {/* User Avatar (Right) */}
-          <NotificationBell />
-          <Tooltip title="Open settings">
-            <IconButton onClick={handleOpenUserMenu} sx={{ ml: 2 }}>
-              <Avatar alt="User picture" src={apiUrl + profile?.profilePictureUrl || undefined} />
-            </IconButton>
-          </Tooltip>
+          {/* RIGHT SIDE */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Create Listing Button (desktop) */}
+            <Button
+              startIcon={<AddIcon />}
+              variant="outlined"
+              color="inherit"
+              onClick={() => setIsListingDialogOpen(true)}
+              sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+            >
+              Create Listing
+            </Button>
 
-          {/* User Menu */}
-          <Menu
-            sx={{ mt: '45px' }}
-            id="menu-appbar"
-            anchorEl={anchorElUser}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={Boolean(anchorElUser)}
-            onClick={handleCloseUserMenu}
-            onClose={handleCloseUserMenu}
-          >
-            <UserMenuItems />
-          </Menu>
+            {/* Create Listing Icon (mobile) */}
+            <IconButton
+              color="inherit"
+              aria-label="Create Listing"
+              onClick={() => setIsListingDialogOpen(true)}
+              sx={{ display: { xs: 'inline-flex', sm: 'none' } }}
+            >
+              <AddIcon />
+            </IconButton>
+
+            {/* Notifications & User Menu */}
+            <NotificationBell />
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} sx={{ ml: 1 }}>
+                <Avatar
+                  alt="User picture"
+                  src={profile?.profilePictureUrl ? apiUrl + profile.profilePictureUrl : undefined}
+                />
+              </IconButton>
+            </Tooltip>
+
+            {/* User Menu */}
+            <Menu
+              sx={{ mt: '45px' }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(anchorElUser)}
+              onClick={handleCloseUserMenu}
+              onClose={handleCloseUserMenu}
+            >
+              <UserMenuItems />
+            </Menu>
+          </Box>
         </Toolbar>
       </AppBar>
+
       <Drawer
         sx={{
-          width: drawerWidth,
-          flexShrink: 0,
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
           },
         }}
-        variant="persistent"
+        variant="temporary"
         anchor="left"
         open={open}
+        onClose={handleDrawerClose}
+        ModalProps={{
+          keepMounted: true,
+        }}
       >
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
@@ -276,7 +278,12 @@ const NavBar: React.FC = () => {
           {drawerData.map((element) => (
             <ListItem key={element.text} disablePadding>
               <ListItemButton onClick={() => {
-                navigate(element.link)
+                if (element.callback)
+                  element.callback()
+
+                if (element.link)
+                  navigate(element.link)
+
                 handleDrawerClose()
               }}>
                 <ListItemIcon>

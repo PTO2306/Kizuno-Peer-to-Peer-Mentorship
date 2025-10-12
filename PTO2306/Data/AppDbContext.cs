@@ -14,6 +14,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
    public DbSet<ListingModel> Listings { get; set; }
    public DbSet<ListingTagsModel> ListingTags { get; set; }
    public DbSet<NotificationModel> Notifications { get; set; }
+   public DbSet<ConnectionRequestModel> ConnectionRequests { get; set; }
 
    protected override void OnModelCreating(ModelBuilder builder)
    {
@@ -67,5 +68,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
        builder.Entity<NotificationModel>()
            .HasOne<UserModel>(n => n.Sender)
            .WithMany();
+
+       builder.Entity<ConnectionRequestModel>()
+           .HasKey(cr => new { cr.ListingId, cr.SenderId });
+       
+       builder.Entity<ConnectionRequestModel>()
+           .HasOne(cr => cr.Listing)
+           .WithMany(l => l.ConnectionRequests)
+           .HasForeignKey(cr => cr.ListingId)
+           .OnDelete(DeleteBehavior.Cascade);
+       
+       builder.Entity<ConnectionRequestModel>()
+           .HasOne(cr => cr.Sender)
+           .WithMany()
+           .HasForeignKey(cr => cr.SenderId)
+           .OnDelete(DeleteBehavior.Restrict);
+       
    }
 }

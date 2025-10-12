@@ -78,12 +78,8 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
       <Card
         variant="outlined"
         sx={{
-          // Max 3 per row on large screens to prevent chip crowding
           width: {
             xs: "100%",
-            sm: "calc(50% - 12px)",
-            md: "calc(33.333% - 16px)",
-            lg: "calc(33.333% - 16px)",
           },
           display: "flex",
           flexDirection: "column",

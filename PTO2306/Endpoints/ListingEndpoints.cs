@@ -26,6 +26,7 @@ public static class ListingEndpoints
         protectedUser.MapDelete("/listing/{id}", DeleteListing).DisableAntiforgery();
         
         // General Listing Endpoints
+        protectedGeneral.MapGet("/listings", GetListings);
         protectedGeneral.MapPost("/listing/request", CreateConnectionRequest);
         protectedGeneral.MapPut("/listing/request", UpdateConnectionRequest);
         protectedGeneral.MapGet("/listing/{id}/requests", GetListingRequests);
@@ -262,6 +263,92 @@ public static class ListingEndpoints
     #endregion
     
     #region General methods
+    
+        private static async Task<Ok<SearchDto>> GetListings(
+            AppDbContext db,
+            HttpContext http,
+            [FromQuery] string? search = null,
+            [FromQuery] ListingType? type = null,
+            [FromQuery(Name = "tagNames")] string? tagNamesRaw = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10
+            )
+        {
+            var userId = http.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            Guid.TryParse(userId, out var currentUserId);
+
+            var query = db.Listings
+                .AsNoTracking()
+                .Include(l => l.User)
+                    .ThenInclude(u => u.UserProfile)
+                .Include(l => l.ListingTags)
+                    .ThenInclude(lt => lt.Tag)
+                .AsQueryable();
+
+            if (currentUserId != Guid.Empty)
+                query = query.Where(l => l.UserId != currentUserId);
+
+            if (type.HasValue)
+                query = query.Where(l => l.Type == type.Value);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.ToLower();
+                query = query.Where(l =>
+                    l.Title.ToLower().Contains(term) ||
+                    (l.Subtitle != null && l.Subtitle.ToLower().Contains(term)) ||
+                    (l.Description != null && l.Description.ToLower().Contains(term)) ||
+                    l.ListingTags.Any(lt => lt.Tag.Name.ToLower().Contains(term))
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(tagNamesRaw))
+            {
+                var tagNames = tagNamesRaw
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .ToList();
+
+                query = query.Where(l => l.ListingTags
+                    .Any(lt => tagNames.Contains(lt.Tag.Name)));
+            }
+
+            query = query.OrderByDescending(l => l.CreatedAt);
+
+            var totalCount = await query.CountAsync();
+
+            var listings = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(l => new ListingDto
+                {
+                    Id = l.Id,
+                    Title = l.Title,
+                    Subtitle = l.Subtitle,
+                    Description = l.Description,
+                    DisplayName = l.User.UserProfile.DisplayName ?? "Unknown",
+                    ProfilePictureUrl = l.User.UserProfile.ProfilePictureUrl,
+                    Type = l.Type,
+                    SkillLevel = l.SkillLevel,
+                    Availability = l.Availability,
+                    Mode = l.Mode,
+                    CreatedAt = l.CreatedAt,
+                    UpdatedAt = l.UpdatedAt,
+                    IsOwner = false,
+                    Tags = l.ListingTags.Select(lt => new TagDto
+                    {
+                        Id = lt.Tag.Id,
+                        Name = lt.Tag.Name
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            return TypedResults.Ok(new SearchDto()
+            {
+                TotalCount = totalCount,
+                HasMore = totalCount > page * pageSize,
+                Listings =  listings
+            });
+        }
 
         private static async Task<Results<Ok<ConnectionRequestDto>, BadRequest<string>, Conflict<string>>> CreateConnectionRequest(
             AppDbContext db,

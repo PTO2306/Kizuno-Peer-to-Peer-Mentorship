@@ -1,197 +1,135 @@
-import React, { useState } from 'react';
-import { Box , Button, ButtonGroup, Typography, Paper, Dialog, DialogContent, DialogTitle, IconButton} from '@mui/material';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Box, Button, ButtonGroup, Paper, TextField, CircularProgress, Typography } from '@mui/material';
 import ListingCard from '../components/UI components/card/ListingCard';
-
-const exampleData = [{
-avatar: '',
-title: 'Developer interview practice',
-mentor: 'Coding Jesus',
-subtitle: 'Brush up on your interview skills with an experienced SWE',
-desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.',
-skill: 'Beginner',
-availability: 'Weekends',
-mode: 'In Person'
-},
-{
-avatar: '',
-title: 'Insurance advice',
-mentor: 'Chad Sharrock',
-subtitle: 'Chat with an experienced and passionate insurance broker about your options',
-desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.',
-skill: 'Intermediate',
-availability: 'Weekdays',
-mode: 'Hybrid'
-},
-{
-avatar: '',
-title: 'ADHD Coaching',
-mentor: 'Natalia Berghoff',
-subtitle: 'Happy to have a chat about ADHD and daily challenges!',
-desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.',
-skill: 'Expert',
-availability: 'Evenings',
-mode: 'Online'
-},
-{
-avatar: '',
-title: 'Astronomy Hobby Advice',
-mentor: 'Tiago #DobsonianPower',
-subtitle: "My passion is astronomy and I'm happy to give anyone advice who wants to start stargazing",
-desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla lobortis ultrices felis, ac sodales purus cursus vel. Suspendisse vitae vestibulum odio. Integer sem dui, rutrum sit amet arcu vitae sed.',
-skill: 'Advanced',
-availability: 'Mornings',
-mode: 'Online'
-}
-]
-
-// For later to have dynamic categories as filters
-interface DashboardProps {
-catergoryData: string[]
-}
-
-const categoryData = ["All", "Coding", "Gardening", "Marketing", "Gaming", "Music"]
+import type { ListingModel, SkillModel } from '../models/userModels';
+import { useProfile } from '../Data/ProfileContext';
+import { useListing } from '../Data/ListingContext';
 
 const DashboardPage = () => {
-    const [category, setCategory] = useState("All")
-    const [userType, setUserType] = useState("Learning")
-    const [isFilterDialogOpen, setIsFilterDialogOpen] = React.useState(false);
+  const [listingType, setListingType] = useState('Learning');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [search, setSearch] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-    const handleOpenFilterDialog = () => {
-        setIsFilterDialogOpen(true);
+  const { profile } = useProfile();
+  const { searchListings, fetchListings, loading } = useListing();
+
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const lastListingRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prev) => prev + 1);
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore]
+  );
+
+  useEffect(() => {
+    const loadListings = async () => {
+      const response = await fetchListings({
+        type: listingType === 'Learning' ? 'Mentor' : 'Mentee',
+        page,
+        pageSize: 10,
+        search: search.trim(),
+        tagNames: selectedTags,
+        reset: page === 1,
+      });
+
+      if (!response.success) return;
+
+      setHasMore(response.hasMore ?? false);
     };
 
-    const handleCloseFilterDialog = () => {
-        setIsFilterDialogOpen(false);
-    };
+    loadListings();
+  }, [page, listingType, search, selectedTags]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [listingType, search, selectedTags]);
 
 
-const categoryButtons = categoryData.map(cat => (
-    <Button
-        key={cat}
-        variant={category === cat ? "contained" : "outlined"}
-        onClick={() => setCategory(cat)}
-        size="small"
-        className='rounded-4xl'
-    >
-        {cat}
-    </Button>
-));
+  return (
+    <Box className="flex flex-col items-center w-full min-h-screen py-10 px-4">
+      {/* Controls */}
+      <Paper className="w-full max-w-7xl flex flex-col md:flex-row md:justify-between p-2 items-center gap-2">
+        <TextField
+          variant="outlined"
+          placeholder="Search listings..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          sx={{ width: { xs: '100%', md: '300px' } }}
+        />
 
-    return (
-        <>
-        <Box className="flex flex-col items-center w-full min-h-screen py-10 px-4">
-            <Paper className="w-full max-w-7xl flex flex-col md:flex-row md:justify-between p-2 items-center gap-2">
-                <Box className="hidden md:flex flex-grow-0 gap-1 overflow-x-auto w-full md:w-auto">
-                    {categoryButtons}
-                </Box>
-                <Box className="flex items-center gap-4 w-full justify-center md:w-auto md:justify-end">
-                    {/* Dashboard View Label */}
-                    <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        className="uppercase font-semibold mt-1 text-xs sm:text-sm align-middle" 
-                    >
-                        Dashboard View:
-                    </Typography>
+        <ButtonGroup variant="outlined" aria-label="View selector">
+          <Button
+            variant={listingType === 'Learning' ? 'contained' : 'outlined'}
+            onClick={() => setListingType('Learning')}
+          >
+            Learning
+          </Button>
+          <Button
+            variant={listingType === 'Teaching' ? 'contained' : 'outlined'}
+            onClick={() => setListingType('Teaching')}
+          >
+            Teaching
+          </Button>
+        </ButtonGroup>
 
-                    {/* View Selector Buttons */}
-                    <ButtonGroup
-                        variant="outlined"
-                        aria-label="Dashboard View Selector"
-                        className="flex-shrink-0"
-                    >
-                        <Button
-                            variant={userType === "Learning" ? "contained" : "outlined"}
-                            onClick={() => setUserType("Learning")}
-                            className="text-xs sm:text-sm" 
-                        >
-                            Learning
-                        </Button>
-                        <Button
-                            variant={userType === "Teaching" ? "contained" : "outlined"}
-                            onClick={() => setUserType("Teaching")}
-                            className="text-xs sm:text-sm" 
-                        >
-                            Teaching
-                        </Button>
-                    </ButtonGroup>
-                    <Button
-                        variant="contained"
-                        startIcon={<FilterListIcon />}
-                        size='small' 
-                    >
-                    Filters
-                    </Button>
-                    
-                    {/* Filters Button */}
-                    <Button
-                        variant="contained"
-                        startIcon={<FilterListIcon />}
-                        size='small'
-                        className="text-xs sm:text-sm" 
-                        onClick={handleOpenFilterDialog}
-                    >
-                        Filters
-                    </Button>
-                </Box>
-
-                {/* Filter Dialog */}
-                <Dialog 
-                    open={isFilterDialogOpen} 
-                    onClose={handleCloseFilterDialog}
-                    fullScreen
-                    sx={{
-                        display: { xs: 'block', md: 'none' },
-                        '& .MuiDialog-container': {
-                            '@media (min-width: 900px)': {
-                                alignItems: 'flex-start',
-                                paddingTop: '5vh',
-                            },
-                        },
-                        '& .MuiDialog-paper': {
-                            '@media (min-width: 900px)': {
-                                maxWidth: '400px',
-                                height: 'auto',
-                                maxHeight: '80vh',
-                                borderRadius: '8px',
-                            },
-                        },
-                    }}
-                >
-                    <DialogTitle>
-                        <Box className="flex justify-between items-center">
-                            <Typography variant="h6">Filter Categories</Typography>
-                            <IconButton onClick={handleCloseFilterDialog}>
-                                <FilterListIcon />
-                            </IconButton>
-                        </Box>
-                    </DialogTitle>
-                    <DialogContent dividers>
-                        <Box className="flex flex-wrap gap-2 justify-center">
-                            {categoryButtons}
-                        </Box>
-                    </DialogContent>
-                </Dialog>
-            </Paper>
-            <Box className = "flex flex-wrap gap-4 justify-between py-4 max-w-7xl">
-            {exampleData.map((item, index) => (
-                <ListingCard
-                    key={`${item.title}-${index}`}
-                    avatar={item.avatar}
-                    title={item.title}
-                    mentor={item.mentor}
-                    subtitle={item.subtitle}
-                    desc={item.desc}
-                    skill={item.skill}
-                    mode={item.mode}
-                    availability={item.availability}
-                />
-            ))}
-            </Box>
+        {/* Optional: Profile tag filters */}
+        <Box className="flex flex-wrap gap-1 justify-center md:justify-end">
+          {profile?.skills?.map((tag: SkillModel) => (
+            <Button
+              key={tag.name}
+              size="small"
+              variant={
+                selectedTags.includes(tag.name) ? 'contained' : 'outlined'
+              }
+              onClick={() =>
+                setSelectedTags((prev) =>
+                  prev.includes(tag.name)
+                    ? prev.filter((t) => t !== tag.name)
+                    : [...prev, tag.name]
+                )
+              }
+            >
+              {tag.name}
+            </Button>
+          ))}
         </Box>
-    </>
-);
+      </Paper>
+
+      {/* Listings Grid */}
+      <Box className="flex flex-wrap gap-4 justify-between py-4 max-w-7xl w-full">
+        {searchListings.map((listing, index) => {
+          if (index === searchListings.length - 1) {
+            return (
+              <div ref={lastListingRef} key={listing.id}>
+                <ListingCard {...listing} />
+              </div>
+            );
+          }
+          return <ListingCard key={listing.id} {...listing} />;
+        })}
+      </Box>
+
+      {/* Loading Spinner */}
+      {loading && <CircularProgress sx={{ my: 3 }} />}
+      {!hasMore && !loading && searchListings.length > 0 && (
+        <Typography sx={{ color: 'text.secondary', mt: 3 }}>
+          You’ve reached the end.
+        </Typography>
+      )}
+    </Box>
+  );
 };
 
 export default DashboardPage;
