@@ -85,6 +85,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
           flexDirection: "column",
           borderRadius: 3,
           boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+          border: `1px solid ${type === "Mentor" ? theme.palette.primary.main : theme.palette.secondary.main}`,
         }}
         onClick={handleClick}
       >
@@ -109,6 +110,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
             >
               <Tooltip title="Edit Listing">
                 <IconButton
+                  component="span"
                   size="small"
                   color="primary"
                   onClick={handleEditClick}
@@ -122,6 +124,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
               </Tooltip>
               <Tooltip title="Delete Listing">
                 <IconButton
+                  component="span"
                   size="small"
                   color="error"
                   onClick={handleDeleteClick}
