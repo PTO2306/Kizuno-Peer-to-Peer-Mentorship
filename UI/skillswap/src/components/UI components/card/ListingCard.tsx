@@ -20,9 +20,9 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import SkillLevelChip from "../chips/SkillLevelChips";
-import ModeChip from "../chips/ModeChips";
-import AvailabilityChip from "../chips/AvailabilityChips";
+import SkillLevelChip from "../Chips/SkillLevelChips";
+import ModeChip from "../Chips/ModeChips";
+import AvailabilityChip from "../Chips/AvailabilityChips";
 import type { ListingModel } from "../../../models/userModels";
 import { useListing } from "../../../Data/ListingContext";
 import AddListingDialog from "../addlistingdialog/AddListingDialog";
