@@ -15,7 +15,8 @@ import {
   Stack,
   useMediaQuery,
   useTheme,
-  Tooltip
+  Tooltip,
+  Chip
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -47,7 +48,8 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
     skillLevel,
     availability,
     mode,
-    isOwner
+    isOwner,
+    tags
   } = listing;
 
   const handleClick = () => setOpen(true);
@@ -85,7 +87,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
           flexDirection: "column",
           borderRadius: 3,
           boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-          border: `1px solid ${type === "Mentor" ? theme.palette.primary.main : theme.palette.secondary.main}`,
+          // border: `1px solid ${type === "Mentor" ? theme.palette.primary.main : theme.palette.secondary.main}`,
         }}
         onClick={handleClick}
       >
@@ -257,15 +259,29 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
               }}
               imgProps={{ style: { objectFit: "cover" } }}
             />
-            <Typography
-              variant="h6"
-              sx={{
-                fontSize: { xs: "1rem", sm: "1.1rem" },
-                mt: { xs: 0.5, sm: 0 },
-              }}
-            >
-              {title}
-            </Typography>
+            <Box sx={{ flexDirection: 'column', display: 'flex', alignItems: { xs: 'center', sm: 'flex-start' } }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: { xs: "1rem", sm: "1.1rem" },
+                  mt: { xs: 0.5, sm: 0 },
+                }}
+              >
+                {title}
+              </Typography>
+              {tags && tags.length > 0 && (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                  {tags.map((tag) => (
+                    <Chip
+                      key={tag.name}
+                      label={tag.name}
+                      size="small"
+                      color="primary"
+                    />
+                  ))}
+                </Box>
+              )}
+            </Box>
           </Box>
 
           <IconButton
@@ -294,6 +310,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
             by {displayName}
           </Typography>
           <Typography variant="body1">{description}</Typography>
+
         </DialogContent>
 
         <DialogActions

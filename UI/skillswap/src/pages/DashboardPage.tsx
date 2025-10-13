@@ -107,7 +107,7 @@ const DashboardPage = () => {
     return searchListings.map((listing, index) => {
       const isLast = index === searchListings.length - 1;
 
-      if (isLast) {
+      if (isLast && hasMore) {
         return (
           <div ref={lastListingRef} key={listing.id}>
             <ListingCard {...listing} />
@@ -116,7 +116,7 @@ const DashboardPage = () => {
       }
       return <ListingCard key={listing.id} {...listing} />;
     });
-  }, [searchListings, lastListingRef]);
+  }, [searchListings, lastListingRef, hasMore]);
 
   const showSkeleton = (searchLoading && page === 1) || isPending;
 
@@ -198,7 +198,7 @@ const DashboardPage = () => {
         }}
       >
         {showSkeleton ? (
-          Array.from({ length: 6 }).map((_, index) => (
+          Array.from({ length: 9 }).map((_, index) => (
             <Skeleton
               key={index}
               variant="rectangular"

@@ -140,7 +140,7 @@ const ProfileEditPage: React.FC = () => {
       currentSkills.filter(
         (s) => !(s.name === skill.name && s.isTeaching === skill.isTeaching)
       ),
-      { shouldDirty: true }
+      { shouldDirty: true, shouldValidate: true }
     );
   };
 
