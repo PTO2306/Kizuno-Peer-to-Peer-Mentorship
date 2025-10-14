@@ -27,11 +27,13 @@ import AvailabilityChip from "../Chips/AvailabilityChips";
 import type { ListingModel } from "../../../models/userModels";
 import { useListing } from "../../../Data/ListingContext";
 import AddListingDialog from "../addlistingdialog/AddListingDialog";
+import ChatDialog from "../chat/ChatDialog";
 
 const ListingCard: React.FC<ListingModel> = (listing) => {
   const { deleteListing, loading } = useListing();
   const [open, setOpen] = useState(false);
   const [isEditListingDialogOpen, setIsEditListingDialogOpen] = useState(false)
+  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -343,6 +345,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
             variant="contained"
             fullWidth={isSmallScreen}
             sx={{ mt: isSmallScreen ? 1 : 0 }}
+            onClick={() => setIsChatDialogOpen(true)}
           >
             {type === "Mentor" ? "Request" : "Offer"} Mentorship
           </Button>
@@ -370,6 +373,17 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+
+      <ChatDialog 
+        open={isChatDialogOpen} 
+        onClose={() => setIsChatDialogOpen(false)} 
+        listingId={id} 
+        mentorId={""} // Pass the owner's ID
+        mentorName={displayName} 
+        listingTitle={title}
+        type={type}
+      />
     </>
   );
 };
