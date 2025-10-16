@@ -9,22 +9,26 @@ import {
   IconButton,
   Button,
   TextField,
-  // We no longer need useTheme or useMediaQuery because we use Tailwind's responsive classes
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-// import SendIcon from "@mui/icons-material/Send"; // Not used in the final design
 
-// --- Configuration ---
 const MAX_CHARACTERS = 500;
 
 type ChatDialogProps = {
   open: boolean;
   onClose: () => void;
-  listingId: string | undefined;
+  listingId: string; 
   mentorId: string;
   mentorName: string;
   listingTitle: string; 
-  type: string;
+  type: 'Mentor' | 'Mentee'; 
+  onConversationStarted: (
+    targetUserId: string,
+    initialMessage: string,
+    listingId: string,
+    listingTitle: string
+  ) => Promise<void>;
 };
 
 const ChatDialog: React.FC<ChatDialogProps> = ({
@@ -33,38 +37,54 @@ const ChatDialog: React.FC<ChatDialogProps> = ({
   mentorId,
   mentorName,
   listingId,
-  type
+  listingTitle,
+  type,
+  onConversationStarted,
 }) => {
   const [message, setMessage] = useState("");
-  const [isSending, setIsSending] = useState(false); 
+  const [isSending, setIsSending] = useState(false);
+  const characterCount = message.length;
+  const isMessageValid = message.trim().length > 0;
 
-  const handleSendMessage = () => {
-    if (message.trim() === "") return;
-
+  const handleSendMessage = async () => {
+    if (!isMessageValid || isSending) return;
+    
     setIsSending(true);
-    
-    // API CALL PLACEHOLDER
-    console.log(`Sending message to ${mentorName} (ID: ${mentorId}).`);
-    
-    setTimeout(() => {
-        setIsSending(false);
+
+    try {
+        await onConversationStarted(
+            mentorId,
+            message.trim(),
+            listingId,
+            listingTitle
+        );
+        
         setMessage(""); 
         onClose(); 
-    }, 1000);
+    } catch (error) {
+        console.error("Error starting new conversation:", error);
+    } finally {
+        setIsSending(false);
+    }
   };
   
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (event.target.value.length <= MAX_CHARACTERS) {
-          setMessage(event.target.value);
-      }
+    if (event.target.value.length <= MAX_CHARACTERS) {
+      setMessage(event.target.value);
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === 'Enter' && !event.shiftKey) {
-          event.preventDefault();
-          handleSendMessage();
-      }
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      handleSendMessage();
+    }
   };
+
+  const placeholderText =
+    type === "Mentor"
+      ? `Hi ${mentorName}, I'm interested in learning more about your ${listingTitle} listing...`
+      : `Hi ${mentorName}, I'd like to offer to teach you more about the ${listingTitle} listing...`;
 
 
   return (
@@ -74,16 +94,16 @@ const ChatDialog: React.FC<ChatDialogProps> = ({
       fullWidth
       slotProps={{
         paper: {
-            className: 'w-full max-w-[calc(100vw-32px)] sm:max-w-[400px] mx-auto rounded-xl sm:rounded-3xl overflow-x-hidden',
-    },
-  }}
+          className: 'w-full max-w-[calc(100vw-32px)] sm:max-w-[400px] mx-auto rounded-xl sm:rounded-3xl overflow-x-hidden',
+      },
+    }}
       disableScrollLock
     >
       {/* Dialog Title: "Start Conversation" and Close Button */}
       <DialogTitle 
         className="p-4 text-center font-semibold text-lg relative border-b border-gray-200"
       >
-        <Typography variant="h6" className="text-lg font-semibold">
+        <Typography className="text-lg font-semibold">
           Start Conversation
         </Typography>
         <IconButton 
@@ -91,6 +111,7 @@ const ChatDialog: React.FC<ChatDialogProps> = ({
           aria-label="close"
           color="primary"
           className="absolute right-2 top-2"
+          disabled={isSending} 
         >
           <CloseIcon />
         </IconButton>
@@ -102,39 +123,40 @@ const ChatDialog: React.FC<ChatDialogProps> = ({
       >
         <Box className="flex flex-col justify-center items-center">
             <Typography 
-                variant="h5" 
-                className="font-bold text-xl sm:text-2xl"
+              variant="h5" 
+              className="font-bold text-xl sm:text-2xl"
             >
-                Message {mentorName}
+              Message {mentorName}
             </Typography>
             <Typography 
-                variant="body2" 
-                className="text-gray-600 mt-1 text-sm sm:text-base"
+              variant="body2" 
+              className="text-gray-600 mt-1 text-sm sm:text-base"
             >
-                Introduce yourself and what you'd like to discuss.
+              Introduce yourself and what you'd like to discuss regarding{" "}
+              <span className="font-semibold">{listingTitle}</span>.
             </Typography>
         </Box>
         
         <Box className="relative w-full">
             <TextField
-                autoFocus
-                multiline
-                fullWidth
-                variant="outlined"
-                placeholder={type === "Mentor" ? `Hi ${mentorName}, I'm interested in learning more about...` : `Hi ${mentorName}, I'd like to offer to teach you more about...`}
-                value={message} 
-                onChange={handleMessageChange}
-                onKeyDown={handleKeyDown}
-                rows={5}
-                disabled={isSending}
-                className="bg-gray-50 rounded-lg"
-                
+              autoFocus
+              multiline
+              fullWidth
+              variant="outlined"
+              placeholder={placeholderText}
+              value={message} 
+              onChange={handleMessageChange as any} 
+              onKeyDown={handleKeyDown as any}
+              rows={5}
+              disabled={isSending}
+              className="bg-gray-50 rounded-lg"
+              
             />
             <Typography 
-                variant="caption" 
-                className="absolute right-3 bottom-2 text-xs text-gray-400" 
+              variant="caption" 
+              className="absolute right-3 bottom-2 text-xs text-gray-400" 
             >
-                {message.length}/{MAX_CHARACTERS}
+              {characterCount}/{MAX_CHARACTERS}
             </Typography>
         </Box>
       </DialogContent>
@@ -147,10 +169,11 @@ const ChatDialog: React.FC<ChatDialogProps> = ({
             onClick={handleSendMessage}
             variant="contained"
             color="primary"
-            disabled={!message.trim() || isSending}
-            className="normal-case min-w-[80px]"
+            disabled={!isMessageValid || isSending}
+            className="normal-case min-w-[100px]"
+            endIcon={isSending ? <CircularProgress size={20} color="inherit" /> : null}
         >
-            {isSending ? 'Sending...' : 'Send'}
+            {isSending ? 'Sending' : 'Send'}
         </Button>
       </DialogActions>
     </Dialog>

@@ -28,6 +28,8 @@ import type { ListingModel } from "../../../models/userModels";
 import { useListing } from "../../../Data/ListingContext";
 import AddListingDialog from "../addlistingdialog/AddListingDialog";
 import ChatDialog from "../chat/ChatDialog";
+import { startNewConversation } from "../chat/MockChatServiceData"
+import { useNotification } from "../../Notification";
 
 const ListingCard: React.FC<ListingModel> = (listing) => {
   const { deleteListing, loading } = useListing();
@@ -38,6 +40,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const apiURL = import.meta.env.VITE_API_URL;
+  const { showNotification } = useNotification();
 
   const {
     id,
@@ -76,6 +79,27 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
       });
     }
   };
+
+
+
+  const handleStartNewConversation = async (
+        targetUserId: string,
+        initialMessage: string,
+        listingId: string,
+        listingTitle: string
+    ): Promise<void> => {
+        try {
+            console.log(`ListingCard: Calling service to start new chat for listing ${listingId} with user ${targetUserId}.`);
+            
+            startNewConversation(targetUserId, `${displayName} (${type})`, initialMessage, listingTitle);
+            showNotification("Message sent!","success")
+            setOpen(false)
+        } catch (error) {
+            console.error("Failed to start new conversation:", error);
+            showNotification("Failed to send message", "error")
+            throw error; 
+        }
+    };
 
   return (
     <>
@@ -375,15 +399,16 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
       </Dialog>
 
 
-      <ChatDialog 
-        open={isChatDialogOpen} 
-        onClose={() => setIsChatDialogOpen(false)} 
-        listingId={id} 
-        mentorId={""} // Pass the owner's ID
-        mentorName={displayName} 
-        listingTitle={title}
-        type={type}
-      />
+    <ChatDialog 
+                open={isChatDialogOpen} 
+                onClose={() => setIsChatDialogOpen(false)} 
+                listingId={id!} 
+                mentorId={"ownerId"} 
+                mentorName={displayName} 
+                listingTitle={title}
+                type={type as "Mentor" | "Mentee"}
+                onConversationStarted={handleStartNewConversation} 
+            />
     </>
   );
 };
