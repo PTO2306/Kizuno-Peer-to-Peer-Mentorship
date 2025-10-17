@@ -1,69 +1,31 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Paper, Box, Typography, useTheme } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Paper, Box, Typography } from "@mui/material";
 import { useLocation } from "react-router";
 import ConversationListItem from "../components/UI components/chat/ConversationListItem";
 import ChatContainer from "../components/UI components/chat/ChatContainer"; 
-import type { ConversationModel } from "../components/UI components/chat/MockChatServiceData";
+import { useChatData } from "../Data/MockChatContext";
 
-// Mock Data Service
-import { 
-    getAllConversations, 
-    sendNewMessage, 
-    markConversationAsRead,
-    subscribeToNewConversationEvents
-} from '../components/UI components/chat/MockChatServiceData'; 
-
-
-type ConversationListItemData = Omit<ConversationModel, 'messages'>;
 
 const ConnectionsPage: React.FC = () => {
-    const [conversations, setConversations] = useState<ConversationListItemData[]>(getAllConversations());
+    const { conversations, sendNewMessage, markConversationAsRead, getConversationMessages } = useChatData()
     const location = useLocation();
     const index = location.state?.id;
-    const [selectedConversationId, setSelectedConversationId] = useState<string | null>( index !== undefined ? conversations[index].id :
-        conversations[0]?.id || null
+    const [selectedConversationId, setSelectedConversationId] = useState<string>( index !== undefined ? conversations[index].id :
+        conversations[0]?.id
     );
-    const theme = useTheme();
+
     
-    const refreshConversations = useCallback(() => {
-        console.log("ConnectionsPage: Refreshing conversations list due to external event.");
-        const sortedConversations = getAllConversations();
-        setConversations(sortedConversations);
-        
-        if (!selectedConversationId && sortedConversations.length > 0) {
-             setSelectedConversationId(sortedConversations[0].id);
-        }
-    }, [selectedConversationId]); 
-    
-
     useEffect(() => {
-        const unsubscribe = subscribeToNewConversationEvents(() => {
-            refreshConversations();
-        });
-
-        return () => unsubscribe();
-    }, [refreshConversations]); 
-
-    useEffect(() => {
-        if (selectedConversationId) {
-            console.log(`Marking conversation ${selectedConversationId} as read.`);
-            markConversationAsRead(selectedConversationId);
-            refreshConversations(); 
-        }
-    }, [selectedConversationId, refreshConversations]);
+        handleSelectConversation(selectedConversationId)
+    }, [selectedConversationId]);
 
 
     const handleSelectConversation = (id: string) => {
         setSelectedConversationId(id);
         markConversationAsRead(id);
-        refreshConversations(); 
     };
 
     const selectedConversation = conversations.find(c => c.id === selectedConversationId);
-
-    useEffect(() => {
-        refreshConversations();
-    }, []);
 
 
     return (
@@ -100,7 +62,6 @@ const ConnectionsPage: React.FC = () => {
                             conversationId={selectedConversationId!}
                             partnerName={selectedConversation.partnerName}
                             sendMessage={sendNewMessage}
-                            onMessageSent={refreshConversations} 
                         />
                     ) : (
                         <Box className="flex items-center justify-center p-8 text-center text-gray-500 w-full h-full">

@@ -14,8 +14,9 @@ import {
   useTheme
 } from '@mui/material';
 import { useSignalR } from '../../../Data/SignalRContext';
-import { initialConversations } from '../chat/MockChatServiceData';
+import { useChatData } from '../../../Data/MockChatContext';
 import { useNavigate } from 'react-router';
+
 
 
 function NotificationBell() {
@@ -26,14 +27,15 @@ function NotificationBell() {
   //   deleteAllNotifications,
   //   isConnected,
   // } = useSignalR();
-
+  const { totalUnreadMessages, conversations } = useChatData()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [loading, setLoading] = useState(false);
   const open = Boolean(anchorEl);
   const apiUrl = import.meta.env.VITE_API_URL;
-  const [notifications, setNotifications] = useState(initialConversations)
   const navigate = useNavigate()
   const theme = useTheme()
+
+  
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -44,10 +46,6 @@ function NotificationBell() {
   //   fetchData();
   // }, [getNotifications]);
 
-  const unreadCount = notifications.reduce(
-    (acc, value) => acc + (value.unreadCount ?? 0),
-    0
-  );
   //  useMemo(
   //   () => notifications.filter((n) => !n.isRead).length,
   //   [notifications]
@@ -92,7 +90,7 @@ function NotificationBell() {
         size="medium"
         //disabled={!notifications.length}
       >
-        <Badge badgeContent={unreadCount} color="secondary" max={10}>
+        <Badge badgeContent={totalUnreadMessages} color="secondary" max={10}>
           <NotificationsIcon className="text-white text-3xl md:text-4xl" />
         </Badge>
       </IconButton>
@@ -117,12 +115,12 @@ function NotificationBell() {
           <Box className="flex justify-center items-center p-4">
             <CircularProgress size={24} />
           </Box>
-        ) : notifications.length === 0 ? (
+        ) : conversations.length === 0 ? (
           <MenuItem disabled>
             <Typography className="text-gray-500">No notifications</Typography>
           </MenuItem>
         ) : (
-          notifications
+          conversations
             .slice(0, 10)
             .map((notification, index) => (
               <MenuItem
@@ -151,7 +149,7 @@ function NotificationBell() {
                       <Typography
                         component="strong"
                         className={
-                          notification.unreadCount > 0
+                          totalUnreadMessages > 0
                             ? 'text-gray-700 font-bold'
                             : 'text-gray-900 font-bold'
                         }
@@ -180,7 +178,7 @@ function NotificationBell() {
                     </Typography>
                   }
                 />
-                {notification.unreadCount > 0 && (
+                { notification.unreadCount > 0 && (
                   <Box className="w-2 h-2 ml-2 rounded-full flex-shrink-0" sx={{ backgroundColor: theme.palette.secondary.main}} />
                 )}
               </MenuItem>

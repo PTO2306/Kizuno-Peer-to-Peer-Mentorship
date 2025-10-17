@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Typography, TextField, Box, Button, useTheme } from "@mui/material";
-import SendIcon from '@mui/icons-material/Send';
-import { getConversationMessages } from './MockChatServiceData'; 
-import type { MessageModel } from "./MockChatServiceData";
+import SendIcon from '@mui/icons-material/Send'; 
+import type { MessageModel } from "../../../Data/MockChatContext";
+import { useChatData } from "../../../Data/MockChatContext";
 
 interface MessageProps extends MessageModel {
     senderName: string;
@@ -11,6 +11,8 @@ interface MessageProps extends MessageModel {
 
 const MessageComponent: React.FC<MessageProps> = (props) => {
     const theme = useTheme();
+
+    
     
     const senderStyle = {
         backgroundColor: theme.palette.primary.main,
@@ -47,28 +49,22 @@ interface ChatContainerProps {
     conversationId: string;
     partnerName: string;
     sendMessage: (conversationId: string, text: string) => void;
-    onMessageSent: () => void; 
 }
 
 const ChatContainer: React.FC<ChatContainerProps> = ({ 
     conversationId, 
     partnerName, 
     sendMessage, 
-    onMessageSent 
-}) => {
-    const [messages, setMessages] = useState<MessageProps[]>([]); 
+}) => {  
     const [message, setMessage] = useState('');
     const chatEndRef = useRef<HTMLDivElement | null>(null);
+    const { getConversationMessages } = useChatData(); // Get the live data accessor
+    const messages = getConversationMessages(conversationId) || [];
+
 
     useEffect(() => {
-        const loadedMessages = getConversationMessages(conversationId) || [];
-        setMessages(loadedMessages as MessageProps[]);
-        scrollToBottom(); 
-    }, [conversationId]); 
-    
-    useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [conversationId, messages.length]); 
 
     const scrollToBottom = () => {
         setTimeout(() => {
@@ -78,8 +74,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
 
     const handleSubmit = () => {
         if (!message.trim()) return; 
-        sendMessage(conversationId, message);
-        onMessageSent(); 
+        sendMessage(conversationId, message);      
         setMessage('');
     };
     

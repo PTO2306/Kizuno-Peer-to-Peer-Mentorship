@@ -15,6 +15,7 @@ import { ListingProvider } from './Data/ListingContext';
 import MyListingPage from './pages/MyListingPage';
 import ConnectionsPage from './pages/ConnectionsPage';
 import { SignalRProvider } from './Data/SignalRContext';
+import { ChatProvider } from './Data/MockChatContext';
 
 function App() {
   return (
@@ -24,7 +25,9 @@ function App() {
           <ProfileProvider>
             <ListingProvider>
               <BrowserRouter>
-                <AppContent />
+                <ChatProvider>
+                  <AppContent />
+                </ChatProvider>
               </BrowserRouter>
             </ListingProvider>
           </ProfileProvider>

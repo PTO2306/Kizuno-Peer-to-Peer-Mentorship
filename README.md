@@ -34,7 +34,7 @@ The platform focuses on simplicity, authenticity, and human connection.
 
 ---
 
-## 5. Demo Flow (for pitches)
+## 5. User Flow
 1. **Learner signs up**  
 2. **Creates a skill listing** for what they want to learn  
 3. **Mentors discover** that listing and offer to coach  
@@ -58,7 +58,7 @@ Success means seeing people connect in real life, grow together, and form lastin
 
 ---
 
-## 8. What’s Next / Roadmap
+## 8. What’s Next For Us
 - 🌍 **Location-Based Discovery:** Find mentors and learners nearby through map integration.  
 - ✅ **Verified Skill Endorsements:** Build trust through community-backed skill validation.  
 - 📅 **Enhanced Scheduling & Reviews:** Streamline coordination and feedback.  
@@ -67,15 +67,20 @@ These features will evolve Kizuno from an MVP into a scalable, community-first m
 
 ---
 
-## 9. Screenshots & Demo
+## 9. Screenshots Of Our App
 
-![Kizuno Landing Page](assets/screenshot1.png)  
-![Skill Listing Flow](assets/screenshot2.png)  
-![Chat Interface](assets/screenshot3.png)
+<div style="display: flex; justify-content: space-between; padding: 10; ">
+  <img src="UI\skillswap\src\assets\Landing-Page.png" alt="Landing Page" width="49%">
+  <img src="UI\skillswap\src\assets\Green Homepage.png" alt="Home Page" width="49%">
+</div>
 
-**Demo / Repository:**  
+<div style="display: flex; justify-content: space-between; padding: 10;">
+  <img src="UI\skillswap\src\assets\Green Connections Page.png" alt="Chat Page" width="49%">
+  <img src="UI\skillswap\src\assets\Listing Example.png" alt="Listing Example" width="49%">
+</div>
+
+**Video Demo:**  
 🔗 [github.com/PTO2306/Kizuno-Peer-to-Peer-Mentorship](https://github.com/PTO2306/Kizuno-Peer-to-Peer-Mentorship)
-
 ---
 
 ## 10. Team & Learnings
@@ -90,8 +95,16 @@ These features will evolve Kizuno from an MVP into a scalable, community-first m
 
 ---
 
-## 11. Tech Stack (Placeholder)
-_This section will be updated later with technical details about the frameworks, tools, and infrastructure used in Kizuno._
+## 11. Tech Stack 
+
+**Frontend Technologies**
+
+- React
+- React Router
+- Material UI
+- TypeScript 
+- Tailwind Css
+
 
 ---
 

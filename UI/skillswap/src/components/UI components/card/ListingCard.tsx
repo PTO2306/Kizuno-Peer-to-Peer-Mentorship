@@ -28,8 +28,8 @@ import type { ListingModel } from "../../../models/userModels";
 import { useListing } from "../../../Data/ListingContext";
 import AddListingDialog from "../addlistingdialog/AddListingDialog";
 import ChatDialog from "../chat/ChatDialog";
-import { startNewConversation } from "../chat/MockChatServiceData"
 import { useNotification } from "../../Notification";
+import { useChatData } from "../../../Data/MockChatContext";
 
 const ListingCard: React.FC<ListingModel> = (listing) => {
   const { deleteListing, loading } = useListing();
@@ -41,6 +41,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const apiURL = import.meta.env.VITE_API_URL;
   const { showNotification } = useNotification();
+  const { startNewConversation } = useChatData()
 
   const {
     id,
@@ -88,9 +89,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
         listingId: string,
         listingTitle: string
     ): Promise<void> => {
-        try {
-            console.log(`ListingCard: Calling service to start new chat for listing ${listingId} with user ${targetUserId}.`);
-            
+        try {       
             startNewConversation(targetUserId, `${displayName} (${type})`, initialMessage, listingTitle);
             showNotification("Message sent!","success")
             setOpen(false)
