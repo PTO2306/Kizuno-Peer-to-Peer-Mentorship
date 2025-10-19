@@ -3,18 +3,42 @@ import ListingCard from '../components/UI components/card/ListingCard';
 import { useListing } from '../Data/ListingContext';
 
 const MyListingPage = () => {
-    const { userListings } = useListing();
+  const { userListings } = useListing();
 
-    return (
-        <Box className="flex flex-wrap w-full py-10 px-4">
-            {userListings.map((item, index) => (
-                <ListingCard
-                    key={index}
-                    {...item}
-                />
-            ))}
-        </Box>
-    );
+  return (
+    <>
+      <Box
+        className="w-full max-w-7xl"
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+          },
+          gap: 3,
+          py: 4,
+          width: "100%",
+          mx: "auto",
+          transition: 'opacity 0.2s ease-in-out',
+        }}
+      >
+        {userListings.map((item, index) => (
+          <ListingCard
+            key={index}
+            {...item}
+          />
+        ))}
+      </Box>
+      {
+        userListings.length === 0 && (
+          <Box sx={{ color: 'text.secondary', mt: 3, width: '100%', textAlign: 'center' }}>
+            You have no listings. Click the "Create Listing" button to create one.
+          </Box>
+        )
+      }
+    </>
+  );
 };
 
 export default MyListingPage;

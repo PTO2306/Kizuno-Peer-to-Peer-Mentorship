@@ -25,11 +25,13 @@ import AddListingDialog from '../addlistingdialog/AddListingDialog';
 import NotificationBell from './NotificationBell';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import HomeIcon from '@mui/icons-material/Home';
+import ForumIcon from '@mui/icons-material/Forum';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import { useNavigate } from 'react-router';
 import { useSignalR } from '../../../Data/SignalRContext';
 import { useAuth } from '../../../Data/AuthContext';
+
 
 
 type DrawerItem = {
@@ -126,6 +128,11 @@ const NavBar: React.FC = () => {
       text: "Profile",
       icon: <AccountBoxIcon />,
       link: "/profile"
+    },
+    {
+      text: "Connections",
+      icon: <ForumIcon />,
+      link: "/connections"
     },
     {
       text: 'My Listings',

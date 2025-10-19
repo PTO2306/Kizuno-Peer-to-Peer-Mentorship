@@ -15,7 +15,8 @@ import {
   Stack,
   useMediaQuery,
   useTheme,
-  Tooltip
+  Tooltip,
+  Chip
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -26,15 +27,21 @@ import AvailabilityChip from "../Chips/AvailabilityChips";
 import type { ListingModel } from "../../../models/userModels";
 import { useListing } from "../../../Data/ListingContext";
 import AddListingDialog from "../addlistingdialog/AddListingDialog";
+import ChatDialog from "../chat/ChatDialog";
+import { useNotification } from "../../Notification";
+import { useChatData } from "../../../Data/MockChatContext";
 
 const ListingCard: React.FC<ListingModel> = (listing) => {
   const { deleteListing, loading } = useListing();
   const [open, setOpen] = useState(false);
   const [isEditListingDialogOpen, setIsEditListingDialogOpen] = useState(false)
+  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const apiURL = import.meta.env.VITE_API_URL;
+  const { showNotification } = useNotification();
+  const { startNewConversation } = useChatData()
 
   const {
     id,
@@ -47,7 +54,8 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
     skillLevel,
     availability,
     mode,
-    isOwner
+    isOwner,
+    tags
   } = listing;
 
   const handleClick = () => setOpen(true);
@@ -73,6 +81,25 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
     }
   };
 
+
+
+  const handleStartNewConversation = async (
+        targetUserId: string,
+        initialMessage: string,
+        listingId: string,
+        listingTitle: string
+    ): Promise<void> => {
+        try {       
+            startNewConversation(targetUserId, `${displayName} (${type})`, initialMessage, listingTitle);
+            showNotification("Message sent!","success")
+            setOpen(false)
+        } catch (error) {
+            console.error("Failed to start new conversation:", error);
+            showNotification("Failed to send message", "error")
+            throw error; 
+        }
+    };
+
   return (
     <>
       <Card
@@ -85,6 +112,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
           flexDirection: "column",
           borderRadius: 3,
           boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+          // border: `1px solid ${type === "Mentor" ? theme.palette.primary.main : theme.palette.secondary.main}`,
         }}
         onClick={handleClick}
       >
@@ -109,6 +137,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
             >
               <Tooltip title="Edit Listing">
                 <IconButton
+                  component="span"
                   size="small"
                   color="primary"
                   onClick={handleEditClick}
@@ -122,6 +151,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
               </Tooltip>
               <Tooltip title="Delete Listing">
                 <IconButton
+                  component="span"
                   size="small"
                   color="error"
                   onClick={handleDeleteClick}
@@ -254,15 +284,29 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
               }}
               imgProps={{ style: { objectFit: "cover" } }}
             />
-            <Typography
-              variant="h6"
-              sx={{
-                fontSize: { xs: "1rem", sm: "1.1rem" },
-                mt: { xs: 0.5, sm: 0 },
-              }}
-            >
-              {title}
-            </Typography>
+            <Box sx={{ flexDirection: 'column', display: 'flex', alignItems: { xs: 'center', sm: 'flex-start' } }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: { xs: "1rem", sm: "1.1rem" },
+                  mt: { xs: 0.5, sm: 0 },
+                }}
+              >
+                {title}
+              </Typography>
+              {tags && tags.length > 0 && (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                  {tags.map((tag) => (
+                    <Chip
+                      key={tag.name}
+                      label={tag.name}
+                      size="small"
+                      color="primary"
+                    />
+                  ))}
+                </Box>
+              )}
+            </Box>
           </Box>
 
           <IconButton
@@ -291,6 +335,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
             by {displayName}
           </Typography>
           <Typography variant="body1">{description}</Typography>
+
         </DialogContent>
 
         <DialogActions
@@ -323,6 +368,7 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
             variant="contained"
             fullWidth={isSmallScreen}
             sx={{ mt: isSmallScreen ? 1 : 0 }}
+            onClick={() => setIsChatDialogOpen(true)}
           >
             {type === "Mentor" ? "Request" : "Offer"} Mentorship
           </Button>
@@ -350,6 +396,18 @@ const ListingCard: React.FC<ListingModel> = (listing) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+
+    <ChatDialog 
+                open={isChatDialogOpen} 
+                onClose={() => setIsChatDialogOpen(false)} 
+                listingId={id!} 
+                mentorId={"ownerId"} 
+                mentorName={displayName} 
+                listingTitle={title}
+                type={type as "Mentor" | "Mentee"}
+                onConversationStarted={handleStartNewConversation} 
+            />
     </>
   );
 };

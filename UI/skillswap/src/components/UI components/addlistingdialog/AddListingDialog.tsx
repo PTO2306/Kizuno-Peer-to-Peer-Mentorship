@@ -164,17 +164,25 @@ const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose, list
         <DialogContent dividers className="space-y-6">
 
           {/* Listing Type Buttons */}
-          <Box className="flex gap-4 mb-4">
-            {['Mentor', 'Mentee'].map(t => (
-              <Button
-                key={t}
-                variant={typeValue === t ? 'contained' : 'outlined'}
-                color={typeValue === t ? 'primary' : 'inherit'}
-                onClick={() => setValue('type', t as ListingType, { shouldValidate: true })}
-              >
-                {t === 'Mentor' ? 'Mentor (I can teach)' : 'Mentee (I want to learn)'}
-              </Button>
-            ))}
+          <Box className="flex gap-4 mb-4 w-full justify-center">
+            <Button
+              variant={typeValue === 'Mentor' ? 'contained' : 'outlined'}
+              color="primary"
+              onClick={() => setValue('type', "Mentor", { shouldValidate: true })}
+            >
+              <Typography fontWeight={400}>
+                I can teach
+              </Typography>
+            </Button>
+            <Button
+              variant={typeValue === 'Mentee' ? 'contained' : 'outlined'}
+              color="secondary"
+              onClick={() => setValue('type', "Mentee", { shouldValidate: true })}
+            >
+              <Typography fontWeight={400}>
+                I want to learn
+              </Typography>
+            </Button>
           </Box>
 
           {/* Title Field */}
@@ -303,7 +311,7 @@ const AddListingDialog: React.FC<AddListingDialogProps> = ({ open, onClose, list
                     key={tag.name}
                     label={tag.name}
                     onDelete={() => handleRemoveTag(tag)}
-                    color="primary"
+                    color={typeValue === 'Mentor' ? 'primary' : 'secondary'}
                   />
                 ))
               )}

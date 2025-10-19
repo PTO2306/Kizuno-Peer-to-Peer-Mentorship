@@ -11,9 +11,9 @@ export const lightTheme = createTheme({
       contrastText: '#fff',
     },
     secondary: {
-      main: '#f59e0b', // Amber - warm and encouraging
-      light: '#fbbf24',
-      dark: '#d97706',
+      main: '#10b981', // Emerald Green
+      light: '#34d399',
+      dark: '#059669',
       contrastText: '#fff',
     },
     success: {

@@ -11,22 +11,31 @@ import {
   ListItemText,
   Avatar,
   CircularProgress,
+  useTheme
 } from '@mui/material';
 import { useSignalR } from '../../../Data/SignalRContext';
+import { useChatData } from '../../../Data/MockChatContext';
+import { useNavigate } from 'react-router';
+
+
 
 function NotificationBell() {
-  const {
-    notifications,
-    getNotifications,
-    markAllAsRead,
-    deleteAllNotifications,
-    isConnected,
-  } = useSignalR();
-
+  // const {
+  //   notifications,
+  //   getNotifications,
+  //   markAllAsRead,
+  //   deleteAllNotifications,
+  //   isConnected,
+  // } = useSignalR();
+  const { totalUnreadMessages, conversations } = useChatData()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [loading, setLoading] = useState(false);
   const open = Boolean(anchorEl);
   const apiUrl = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate()
+  const theme = useTheme()
+
+  
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -37,10 +46,10 @@ function NotificationBell() {
   //   fetchData();
   // }, [getNotifications]);
 
-  const unreadCount = useMemo(
-    () => notifications.filter((n) => !n.isRead).length,
-    [notifications]
-  );
+  //  useMemo(
+  //   () => notifications.filter((n) => !n.isRead).length,
+  //   [notifications]
+  // );
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -79,9 +88,9 @@ function NotificationBell() {
         aria-controls={open ? 'notifications-menu' : undefined}
         aria-haspopup="true"
         size="medium"
-        disabled={!isConnected && !notifications.length}
+        //disabled={!notifications.length}
       >
-        <Badge badgeContent={unreadCount} color="secondary" max={10}>
+        <Badge badgeContent={totalUnreadMessages} color="secondary" max={10}>
           <NotificationsIcon className="text-white text-3xl md:text-4xl" />
         </Badge>
       </IconButton>
@@ -106,29 +115,31 @@ function NotificationBell() {
           <Box className="flex justify-center items-center p-4">
             <CircularProgress size={24} />
           </Box>
-        ) : notifications.length === 0 ? (
+        ) : conversations.length === 0 ? (
           <MenuItem disabled>
             <Typography className="text-gray-500">No notifications</Typography>
           </MenuItem>
         ) : (
-          notifications
+          conversations
             .slice(0, 10)
             .map((notification, index) => (
               <MenuItem
                 key={index}
-                onClick={handleClose}
+                onClick={() => {
+                  handleClose()
+                  navigate("/connections", { state: { id: index } })}}
                 className={
-                  notification.isRead
+                  notification.unreadCount > 0
                     ? 'hover:bg-gray-100 p-3 border-b border-gray-50'
                     : 'bg-gray-50 hover:bg-gray-200 p-3 border-b border-gray-100'
                 }
               >
                 <ListItemAvatar>
                   <Avatar
-                    src={apiUrl + notification.profilePicUrl || undefined}
-                    alt={notification.senderName}
+                    src={notification.partnerPictureUrl || undefined}
+                    alt={notification.partnerName}
                   >
-                    {notification.senderName?.[0]?.toUpperCase()}
+                    {notification.partnerName?.[0]?.toUpperCase()}
                   </Avatar>
                 </ListItemAvatar>
 
@@ -138,22 +149,22 @@ function NotificationBell() {
                       <Typography
                         component="strong"
                         className={
-                          notification.isRead
+                          totalUnreadMessages > 0
                             ? 'text-gray-700 font-bold'
                             : 'text-gray-900 font-bold'
                         }
                       >
-                        {notification.senderName}
+                        {notification.partnerName}
                       </Typography>
 
                       <Typography
                         component="span"
-                        className={`flex-shrink max-w-[12rem] ${notification.isRead
+                        className={`flex-shrink max-w-[12rem] ${notification.unreadCount > 0
                           ? 'text-gray-600'
                           : 'text-gray-700'
                           } truncate`}
                       >
-                        {' ' + notification.message}
+                        {' ' + notification.lastMessageText}
                       </Typography>
                     </Box>
                   }
@@ -163,19 +174,19 @@ function NotificationBell() {
                       color="text.secondary"
                       className="text-xs mt-0.5"
                     >
-                      {timeSince(notification.timestamp)}
+                      {notification.lastMessageTime}
                     </Typography>
                   }
                 />
-                {!notification.isRead && (
-                  <Box className="w-2 h-2 ml-2 rounded-full bg-blue-400 flex-shrink-0" />
+                { notification.unreadCount > 0 && (
+                  <Box className="w-2 h-2 ml-2 rounded-full flex-shrink-0" sx={{ backgroundColor: theme.palette.secondary.main}} />
                 )}
               </MenuItem>
             ))
         )}
 
         {/* Footer Buttons */}
-        {!loading && notifications.length > 0 && (
+        {/* {!loading && notifications.length > 0 && (
           <Box className="flex justify-between items-center px-3 py-2 border-t border-gray-100">
             <Typography
               variant="body2"
@@ -196,7 +207,7 @@ function NotificationBell() {
               Clear all
             </Typography>
           </Box>
-        )}
+        )} */}
       </Menu>
     </Box>
   );

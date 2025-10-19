@@ -1,25 +1,35 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Button, ButtonGroup, Paper, TextField, CircularProgress, Typography } from '@mui/material';
+import { useState, useEffect, useRef, useCallback, useMemo, useTransition } from 'react';
+import { Box, Button, ButtonGroup, Paper, TextField, CircularProgress, Typography, Skeleton } from '@mui/material';
 import ListingCard from '../components/UI components/card/ListingCard';
-import type { ListingModel, SkillModel } from '../models/userModels';
+import type { FetchListingsParams, SkillModel } from '../models/userModels';
 import { useProfile } from '../Data/ProfileContext';
 import { useListing } from '../Data/ListingContext';
 
 const DashboardPage = () => {
-  const [listingType, setListingType] = useState('Learning');
+  const [listingType, setListingType] = useState<'Mentor' | 'Mentee' | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isPending, startTransition] = useTransition();
 
   const { profile } = useProfile();
-  const { searchListings, fetchListings, loading } = useListing();
+  const { searchListings, fetchListings, loading: searchLoading } = useListing();
 
   const observer = useRef<IntersectionObserver | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const lastListingRef = useCallback(
     (node: HTMLDivElement | null) => {
-      if (loading) return;
+      if (searchLoading || isPending) return;
       if (observer.current) observer.current.disconnect();
 
       observer.current = new IntersectionObserver((entries) => {
@@ -30,61 +40,127 @@ const DashboardPage = () => {
 
       if (node) observer.current.observe(node);
     },
-    [loading, hasMore]
+    [searchLoading, hasMore]
   );
 
   useEffect(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     const loadListings = async () => {
-      const response = await fetchListings({
-        type: listingType === 'Learning' ? 'Mentor' : 'Mentee',
+      const payload: FetchListingsParams = {
         page,
-        pageSize: 10,
-        search: search.trim(),
+        pageSize: 9,
+        search: debouncedSearch.trim(),
         tagNames: selectedTags,
         reset: page === 1,
-      });
+      };
 
-      if (!response.success) return;
+      if (listingType) {
+        payload.type = listingType;
+      }
 
-      setHasMore(response.hasMore ?? false);
+      try {
+        const response = await fetchListings(payload);
+        if (!response.success) return;
+
+        setHasMore(response.hasMore ?? false);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error(err);
+        }
+      }
     };
 
     loadListings();
-  }, [page, listingType, search, selectedTags]);
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [page, listingType, debouncedSearch, selectedTags]);
 
   useEffect(() => {
     setPage(1);
-  }, [listingType, search, selectedTags]);
+  }, [listingType, debouncedSearch, selectedTags]);
 
+  const handleTypeToggle = useCallback((type: 'Mentor' | 'Mentee') => {
+    startTransition(() => {
+      setListingType((prev) => (prev === type ? null : type));
+    });
+  }, []);
+
+  const handleTagToggle = useCallback((tagName: string) => {
+    startTransition(() => {
+      setSelectedTags((prev) =>
+        prev.includes(tagName)
+          ? prev.filter((t) => t !== tagName)
+          : [...prev, tagName]
+      );
+    });
+  }, []);
+
+  const renderedListings = useMemo(() => {
+    return searchListings.map((listing, index) => {
+      const isLast = index === searchListings.length - 1;
+
+      if (isLast && hasMore) {
+        return (
+          <div ref={lastListingRef} key={listing.id}>
+            <ListingCard {...listing} />
+          </div>
+        );
+      }
+      return <ListingCard key={listing.id} {...listing} />;
+    });
+  }, [searchListings, lastListingRef, hasMore]);
+
+  const showSkeleton = (searchLoading && page === 1) || isPending;
 
   return (
     <Box className="flex flex-col items-center w-full min-h-screen py-10 px-4">
       {/* Controls */}
-      <Paper className="w-full max-w-7xl flex flex-col md:flex-row md:justify-between p-2 items-center gap-2">
+      <Paper className="w-full max-w-7xl flex flex-col md:flex-row md:justify-between p-2 items-center gap-4">
         <TextField
           variant="outlined"
           placeholder="Search listings..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ width: { xs: '100%', md: '300px' } }}
+          sx={{
+            width: { xs: '100%', md: '300px' },
+            '& .MuiInputBase-root': {
+              height: '46px'
+            }
+          }}
         />
 
-        <ButtonGroup variant="outlined" aria-label="View selector">
+        <ButtonGroup sx={{ minWidth: { xs: '100%', md: '250px' } }}>
           <Button
-            variant={listingType === 'Learning' ? 'contained' : 'outlined'}
-            onClick={() => setListingType('Learning')}
+            variant={listingType === 'Mentor' ? 'contained' : 'outlined'}
+            onClick={() => handleTypeToggle('Mentor')}
+            sx={{
+              height: '46px',
+              flex: 1
+            }}
           >
-            Learning
+            Learn
           </Button>
           <Button
-            variant={listingType === 'Teaching' ? 'contained' : 'outlined'}
-            onClick={() => setListingType('Teaching')}
+            variant={listingType === 'Mentee' ? 'contained' : 'outlined'}
+            color="secondary"
+            onClick={() => handleTypeToggle('Mentee')}
+            sx={{
+              height: '46px',
+              flex: 1
+            }}
           >
-            Teaching
+            Teach
           </Button>
         </ButtonGroup>
 
-        {/* Optional: Profile tag filters */}
         <Box className="flex flex-wrap gap-1 justify-center md:justify-end">
           {profile?.skills?.map((tag: SkillModel) => (
             <Button
@@ -93,13 +169,9 @@ const DashboardPage = () => {
               variant={
                 selectedTags.includes(tag.name) ? 'contained' : 'outlined'
               }
-              onClick={() =>
-                setSelectedTags((prev) =>
-                  prev.includes(tag.name)
-                    ? prev.filter((t) => t !== tag.name)
-                    : [...prev, tag.name]
-                )
-              }
+              color={tag.isTeaching ? 'primary' : 'secondary'}
+              onClick={() => handleTagToggle(tag.name)}
+              sx={{ height: '46px' }}
             >
               {tag.name}
             </Button>
@@ -108,27 +180,55 @@ const DashboardPage = () => {
       </Paper>
 
       {/* Listings Grid */}
-      <Box className="flex flex-wrap gap-4 justify-between py-4 max-w-7xl w-full">
-        {searchListings.map((listing, index) => {
-          if (index === searchListings.length - 1) {
-            return (
-              <div ref={lastListingRef} key={listing.id}>
-                <ListingCard {...listing} />
-              </div>
-            );
-          }
-          return <ListingCard key={listing.id} {...listing} />;
-        })}
+      <Box
+        className="w-full max-w-7xl"
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+          },
+          gap: 3,
+          py: 4,
+          width: "100%",
+          mx: "auto",
+          opacity: isPending ? 0.6 : 1,
+          transition: 'opacity 0.2s ease-in-out',
+        }}
+      >
+        {showSkeleton ? (
+          Array.from({ length: 9 }).map((_, index) => (
+            <Skeleton
+              key={index}
+              variant="rectangular"
+              height={350}
+              sx={{ borderRadius: 3 }}
+            />
+          ))
+        ) : (
+          renderedListings
+        )}
       </Box>
 
-      {/* Loading Spinner */}
-      {loading && <CircularProgress sx={{ my: 3 }} />}
-      {!hasMore && !loading && searchListings.length > 0 && (
-        <Typography sx={{ color: 'text.secondary', mt: 3 }}>
-          You’ve reached the end.
-        </Typography>
-      )}
-    </Box>
+      {searchLoading && page > 1 && <CircularProgress sx={{ my: 3 }} />}
+
+      {
+        !hasMore && !searchLoading && searchListings.length > 0 && (
+          <Typography sx={{ color: 'text.secondary', mt: 3 }}>
+            You've reached the end.
+          </Typography>
+        )
+      }
+
+      {
+        !searchLoading && searchListings.length === 0 && (
+          <Typography sx={{ color: 'text.secondary', mt: 3 }}>
+            No listings found. Try adjusting your filters.
+          </Typography>
+        )
+      }
+    </Box >
   );
 };
 

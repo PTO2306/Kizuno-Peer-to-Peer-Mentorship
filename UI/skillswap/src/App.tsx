@@ -13,7 +13,9 @@ import ProfilePage from './pages/ProfilePage';
 import OnboardingPage from './pages/OnboardingPage';
 import { ListingProvider } from './Data/ListingContext';
 import MyListingPage from './pages/MyListingPage';
+import ConnectionsPage from './pages/ConnectionsPage';
 import { SignalRProvider } from './Data/SignalRContext';
+import { ChatProvider } from './Data/MockChatContext';
 
 function App() {
   return (
@@ -23,7 +25,9 @@ function App() {
           <ProfileProvider>
             <ListingProvider>
               <BrowserRouter>
-                <AppContent />
+                <ChatProvider>
+                  <AppContent />
+                </ChatProvider>
               </BrowserRouter>
             </ListingProvider>
           </ProfileProvider>
@@ -35,7 +39,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const navbarRoutes = ['/dashboard', '/profile', '/my-listings'];
+  const navbarRoutes = ['/dashboard', '/profile', '/my-listings', '/connections'];
   const showNavbar = navbarRoutes.includes(location.pathname);
 
   return (
@@ -68,6 +72,12 @@ function AppContent() {
             </AuthGuard>
           }
         />
+
+        <Route path="/connections" element={
+          <AuthGuard requireProfile={true}>
+            <ConnectionsPage />
+          </AuthGuard>
+        } />
 
         <Route path="/my-listings" element={
           <AuthGuard requireProfile={true}>
