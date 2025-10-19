@@ -1,4 +1,4 @@
-# Kizuno
+# [Kizuno](https://kizuno.netlify.app/)
 
 **Connecting people through shared interests and skills.**  
 *A peer-to-peer learning platform where everyone can be both a mentor and a learner.*
@@ -69,6 +69,8 @@ These features will evolve Kizuno from an MVP into a scalable, community-first m
 
 ## 9. Screenshots Of Our App
 
+**[Netlify Demo](https://kizuno.netlify.app/)**
+
 <div style="display: flex; justify-content: space-between; padding: 10; ">
   <img src="UI\skillswap\src\assets\Landing-Page.png" alt="Landing Page" width="49%">
   <img src="UI\skillswap\src\assets\Green Homepage.png" alt="Home Page" width="49%">
@@ -79,8 +81,6 @@ These features will evolve Kizuno from an MVP into a scalable, community-first m
   <img src="UI\skillswap\src\assets\Listing Example.png" alt="Listing Example" width="49%">
 </div>
 
-**Video Demo:**  
-🔗 [github.com/PTO2306/Kizuno-Peer-to-Peer-Mentorship](https://github.com/PTO2306/Kizuno-Peer-to-Peer-Mentorship)
 ---
 
 ## 10. Team & Learnings
