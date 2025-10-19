@@ -6,7 +6,7 @@
 ---
 
 ## 1. Introduction
-Kizuno was built by a team of young professionals who wanted a better way to learn and grow through real human connection.  
+Kizuno was built by a team of devs who wanted a better way to learn and grow through real human connection.  
 Instead of impersonal online courses, Kizuno helps people connect locally to teach, learn, and collaborate on real-world skills — creating a network of shared growth and mentorship.
 
 ---
@@ -105,6 +105,12 @@ These features will evolve Kizuno from an MVP into a scalable, community-first m
 - TypeScript 
 - Tailwind Css
 
+**Frontend Technologies**
+
+- ASP.NET API
+- Entity Framework Core
+- SignalR
+- Postgress DB
 
 ---
 
