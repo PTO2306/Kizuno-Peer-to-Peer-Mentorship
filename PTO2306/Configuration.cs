@@ -75,9 +75,10 @@ public static class Configuration
       // CORS
       builder.Services.AddCors(options =>
       {
+         var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
          options.AddPolicy("corsPolicy", b =>
          {
-            b.WithOrigins(builder.Configuration["AllowedOrigin"]!)
+            b.WithOrigins(allowedOrigins!)
                .AllowAnyHeader()
                .WithMethods("GET", "POST", "PUT", "DELETE")
                .AllowCredentials();
